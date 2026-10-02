@@ -247,6 +247,54 @@ select rlstest.ok('bob (viewer): insert projection fails',
   rlstest.rows(format($$insert into public.projections (team_id, tenant_id, target_period, projected_amount) values (%L, %L, 'weekly', 1)$$, rlstest.id('teamA'), rlstest.id('tenantA'))) = -1);
 select rlstest.ok('bob (viewer): approve projection affects 0 rows', rlstest.rows($$update public.projections set review_status = 'unreviewed'$$) = 0);
 
+-- ── 0003: lease & GTO terms, outlets ───────────────────────────────────────
+:as_carol
+select rlstest.ok('0003 carol (analyst): set tiers, SST, base rent, lease dates, property',
+  rlstest.rows(format($$update public.tenants set gto_tiers = '[{"up_to":400000,"rate":0},{"up_to":null,"rate":0.03}]',
+    gto_sst_pct = 8, base_rent_monthly = 12500, lease_start = '2025-07-01', lease_end = '2028-06-30', property = 'Demo Mall North'
+    where id = %L$$, rlstest.id('tenantA'))) = 1);
+select rlstest.ok('0003: three-band tiers accepted',
+  rlstest.rows(format($$update public.tenants set gto_tiers = '[{"up_to":150000,"rate":0},{"up_to":350000,"rate":0.015},{"up_to":null,"rate":0.045}]' where id = %L$$, rlstest.id('tenantA'))) = 1);
+select rlstest.ok('0003: descending thresholds rejected',
+  rlstest.rows(format($$update public.tenants set gto_tiers = '[{"up_to":350000,"rate":0},{"up_to":150000,"rate":0.015},{"up_to":null,"rate":0.045}]' where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: last band must be open-ended',
+  rlstest.rows(format($$update public.tenants set gto_tiers = '[{"up_to":400000,"rate":0},{"up_to":900000,"rate":0.03}]' where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: rate above 1 (100%%) rejected',
+  rlstest.rows(format($$update public.tenants set gto_tiers = '[{"up_to":null,"rate":2.5}]' where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: non-array tiers rejected',
+  rlstest.rows(format($$update public.tenants set gto_tiers = '{"rate":0.1}' where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: SST over 100%% rejected',
+  rlstest.rows(format($$update public.tenants set gto_sst_pct = 150 where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: lease end before start rejected',
+  rlstest.rows(format($$update public.tenants set lease_start = '2027-01-01', lease_end = '2026-01-01' where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: negative base rent rejected',
+  rlstest.rows(format($$update public.tenants set base_rent_monthly = -1 where id = %L$$, rlstest.id('tenantA'))) = -1);
+select rlstest.ok('0003: null tiers (flat rent_rate_pct fallback) still valid',
+  rlstest.rows(format($$insert into public.tenants (team_id, name, rent_rate_pct) values (%L, 'Flat Rate Co', 8)$$, rlstest.id('teamA'))) = 1
+  and rlstest.rows($$delete from public.tenants where name = 'Flat Rate Co'$$) = 1);
+select rlstest.ok('0003 carol (analyst): monthly sale with outlet',
+  rlstest.rows(format($$insert into public.sales_records (team_id, tenant_id, period_type, amount, outlet, source) values (%L, %L, 'monthly', 120450.5, 'Outlet North', 'import')$$, rlstest.id('teamA'), rlstest.id('tenantA'))) = 1);
+select rlstest.ok('0003: blank outlet rejected',
+  rlstest.rows(format($$insert into public.sales_records (team_id, tenant_id, period_type, amount, outlet) values (%L, %L, 'monthly', 1, '  ')$$, rlstest.id('teamA'), rlstest.id('tenantA'))) = -1);
+:as_bob
+select rlstest.ok('0003 bob (viewer): reads new term columns',
+  (select gto_sst_pct from public.tenants where id = rlstest.id('tenantA')) = 8
+  and (select count(*) from public.sales_records where outlet = 'Outlet North') = 1);
+select rlstest.ok('0003 bob (viewer): cannot change tiers',
+  rlstest.rows(format($$update public.tenants set gto_tiers = null where id = %L$$, rlstest.id('tenantA'))) = 0);
+:as_dave
+select rlstest.ok('0003 dave (other team): cannot read or change team A terms',
+  (select count(*) from public.tenants where id = rlstest.id('tenantA')) = 0
+  and rlstest.rows(format($$update public.tenants set base_rent_monthly = 1 where id = %L$$, rlstest.id('tenantA'))) = 0
+  and (select count(*) from public.sales_records where outlet = 'Outlet North') = 0);
+:as_super
+select rlstest.ok('0003: team A terms untouched by viewer / other team',
+  (select base_rent_monthly from public.tenants where id = rlstest.id('tenantA')) = 12500
+  and (select jsonb_array_length(gto_tiers) from public.tenants where id = rlstest.id('tenantA')) = 3);
+-- keep later sales-count assertions unchanged
+delete from public.sales_records where outlet = 'Outlet North' and tenant_id = rlstest.id('tenantA');
+:as_bob
+
 -- ── admin manages members ──────────────────────────────────────────────────
 :as_alice
 select rlstest.ok('alice (admin): promote bob to analyst',

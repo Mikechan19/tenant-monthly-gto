@@ -8,11 +8,11 @@ cd "$(dirname "$0")/../.."
 dropdb --if-exists "$DB"
 createdb "$DB"
 P=(psql -d "$DB" -v ON_ERROR_STOP=1 -q -X)
-"${P[@]}" -f supabase/tests/auth_stub.sql >/dev/null 2>&1
-"${P[@]}" -f supabase/migrations/0001_init.sql >/dev/null 2>&1
-"${P[@]}" -f supabase/migrations/0002_teams.sql >/dev/null 2>&1
-"${P[@]}" -f supabase/migrations/0002_teams.sql >/dev/null 2>&1
-"${P[@]}" -f supabase/migrations/0001_init.sql >/dev/null 2>&1
-"${P[@]}" -f supabase/migrations/0002_teams.sql >/dev/null 2>&1
-echo "migrations applied (0001, 0002, 0002, 0001, 0002)"
+export PGOPTIONS="-c client_min_messages=warning"  # hide "already exists, skipping" notices, keep errors
+"${P[@]}" -f supabase/tests/auth_stub.sql >/dev/null
+for f in 0001_init 0002_teams 0002_teams 0001_init 0002_teams 0003_gto_terms 0003_gto_terms; do
+  "${P[@]}" -f "supabase/migrations/$f.sql" >/dev/null
+done
+echo "migrations applied (0001, 0002, 0002, 0001, 0002, 0003, 0003)"
+unset PGOPTIONS
 "${P[@]}" -f supabase/tests/rls_test.sql 2>&1 | sed 's/^psql:[^ ]* NOTICE:  //'
