@@ -107,7 +107,7 @@ export default async function TenantDetail({
     <>
       {header}
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Stat label="Today" value={rm(todayTotal)} delta={pctChange(todayTotal, yTotal)} hint="vs yesterday" />
         <Stat label="Last 7 days" value={rm(trend.slice(-7).reduce((s, d) => s + d.amount, 0))} />
         <Stat label="Projected next week" value={<span data-testid="tenant-projection">{weekly ? rm(weekly.projectedAmount) : "—"}</span>} hint={weekly ? <ConfidenceBadge confidence={weekly.confidence} /> : "not enough data"} />
@@ -136,12 +136,12 @@ export default async function TenantDetail({
         <Card
           title={`Hourly breakdown · ${formatDay(day)}`}
           action={
-            <div className="flex items-center gap-1 text-sm">
-              <Link className="rounded px-2 py-1 text-slate-600 hover:bg-slate-100" href={`/tenants/${tenant.id}?day=${addDays(day, -1)}`} aria-label="Previous day">
+            <div className="-my-2 flex items-center gap-1 text-sm">
+              <Link className="grid h-11 w-11 place-items-center rounded-lg text-slate-600 hover:bg-slate-100 sm:h-auto sm:w-auto sm:px-2 sm:py-1" href={`/tenants/${tenant.id}?day=${addDays(day, -1)}`} aria-label="Previous day" scroll={false}>
                 ←
               </Link>
               {day < today && (
-                <Link className="rounded px-2 py-1 text-slate-600 hover:bg-slate-100" href={`/tenants/${tenant.id}?day=${addDays(day, 1)}`} aria-label="Next day">
+                <Link className="grid h-11 w-11 place-items-center rounded-lg text-slate-600 hover:bg-slate-100 sm:h-auto sm:w-auto sm:px-2 sm:py-1" href={`/tenants/${tenant.id}?day=${addDays(day, 1)}`} aria-label="Next day" scroll={false}>
                   →
                 </Link>
               )}
@@ -151,7 +151,7 @@ export default async function TenantDetail({
           {hourly ? (
             <HourlyBars data={hourly} height={240} />
           ) : (
-            <div className="flex h-[240px] flex-col items-center justify-center text-center text-sm text-slate-500">
+            <div className="flex h-[200px] flex-col items-center justify-center text-center text-sm text-slate-500 sm:h-[240px]">
               <div>No hourly records for this day.</div>
               <div className="mt-1 text-xs">Day total from daily records: {rm(dayTotal)}</div>
             </div>
@@ -167,7 +167,7 @@ export default async function TenantDetail({
         <Card className="mt-6" title="Weekly & monthly reported totals">
           <ul className="divide-y divide-slate-100 text-sm">
             {summaries.map((r) => (
-              <li key={r.id} className="flex items-center justify-between py-2">
+              <li key={r.id} className="flex items-center justify-between gap-3 py-2">
                 <span>
                   <Badge tone="teal">{r.period_type}</Badge>{" "}
                   <span className="text-slate-600">
@@ -183,7 +183,28 @@ export default async function TenantDetail({
       )}
 
       <Card className="mt-6" title={`Sales records (${count})`} action={<span className="text-xs text-slate-500">Latest 100 shown</span>}>
-        <div className="overflow-x-auto">
+        {/* Phones: stacked rows with full-width Edit / Delete */}
+        <ul className="-mx-4 divide-y divide-slate-100 sm:hidden" data-testid="record-list">
+          {recent.map((r) => (
+            <li key={r.id} className="px-4 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 text-sm font-medium capitalize text-slate-900">
+                    {r.period_type}
+                    <Badge tone={r.source === "import" ? "teal" : "slate"}>{r.source ?? "manual"}</Badge>
+                  </div>
+                  <div className="mt-0.5 text-xs text-slate-500">{dateTime(r.recorded_at)}</div>
+                </div>
+                <div className="shrink-0 text-right text-base font-semibold tabular-nums">{rm(Number(r.amount), { cents: true })}</div>
+              </div>
+              {/* Right-aligned, content-width actions (each still ≥44px tall) */}
+              <div className="mt-2 flex justify-end [&>div]:flex-none [&_button]:min-w-[5.5rem]">
+                <SaleRowActions record={r} tenants={lite} />
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden overflow-x-auto sm:block">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
@@ -224,7 +245,28 @@ export default async function TenantDetail({
 
 function SavedTable({ rows }: { rows: Awaited<ReturnType<typeof listSavedProjections>> }) {
   return (
-    <table className="w-full text-sm">
+    <>
+    <ul className="-mx-4 divide-y divide-slate-100 sm:hidden">
+      {rows.map((p) => (
+        <li key={p.id} className="px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-sm font-medium capitalize text-slate-900">{p.target_period}</div>
+              <div className="mt-0.5 text-xs text-slate-500">Saved {dateTime(p.created_at)}</div>
+            </div>
+            <div className="shrink-0 text-right text-base font-semibold tabular-nums">{rm(Number(p.projected_amount))}</div>
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <ConfidenceBadge confidence={p.confidence === null ? null : Number(p.confidence)} />
+            <Badge tone={p.review_status === "approved" ? "emerald" : "slate"}>{p.review_status ?? "unreviewed"}</Badge>
+          </div>
+          <div className="mt-2 flex justify-end [&>div]:flex-none [&_button]:min-w-[5.5rem]">
+            <ProjectionRowActions id={p.id} status={p.review_status} />
+          </div>
+        </li>
+      ))}
+    </ul>
+    <table className="hidden w-full text-sm sm:table">
       <tbody className="divide-y divide-slate-100">
         {rows.map((p) => (
           <tr key={p.id}>
@@ -244,5 +286,6 @@ function SavedTable({ rows }: { rows: Awaited<ReturnType<typeof listSavedProject
         ))}
       </tbody>
     </table>
+    </>
   );
 }

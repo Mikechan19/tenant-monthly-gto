@@ -52,14 +52,57 @@ export default async function ProjectionsPage() {
         <EmptyState title="No tenants yet" action={<ButtonLink href="/tenants" variant="primary">Add a tenant</ButtonLink>} />
       ) : (
         <>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1">
             <Stat label="Portfolio — next week" value={rm(totalWeek)} hint={`${rows.filter((r) => r.w).length} of ${tenants.length} tenants projectable`} />
             <Stat label={`Portfolio — ${formatMonth(nextMonthStart(today))}`} value={rm(totalMonth)} />
             <Stat label="Est. % rent — next week" value={rm(totalRent)} hint="projection × tenant rent rate" />
           </div>
 
           <Card title="Next-period estimate by tenant">
-            <div className="overflow-x-auto">
+            {/* Phones: one block per tenant */}
+            <ul className="-mx-4 divide-y divide-slate-100 sm:hidden" data-testid="projection-list">
+              {rows.map(({ t, w, mo }) => (
+                <li key={t.id} className="px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <Link href={`/tenants/${t.id}`} className="min-w-0 truncate py-0.5 text-sm font-semibold text-slate-900">
+                      {t.name}
+                    </Link>
+                    {w && (
+                      <div className="shrink-0 text-right">
+                        <div className="text-[11px] uppercase tracking-wide text-slate-500">Next week</div>
+                        <div className="text-base font-semibold tabular-nums">{rm(w.projectedAmount)}</div>
+                      </div>
+                    )}
+                  </div>
+                  {w ? (
+                    <>
+                      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-slate-600">
+                        <dt>Avg / day (7d)</dt>
+                        <dd className="text-right tabular-nums">{rm(w.avgDaily)}</dd>
+                        <dt>Days of data</dt>
+                        <dd className="text-right tabular-nums">{w.daysWithData} / 7</dd>
+                        <dt>Confidence</dt>
+                        <dd className="text-right">
+                          <ConfidenceBadge confidence={w.confidence} />
+                        </dd>
+                        <dt>Est. % rent</dt>
+                        <dd className="text-right tabular-nums">{rm(projectedRent(w.projectedAmount, t.rent_rate_pct))}</dd>
+                        <dt>Next month</dt>
+                        <dd className="text-right tabular-nums">
+                          {mo ? rm(mo.projectedAmount) : "—"} {mo?.lowConfidence && <span className="text-amber-700">(low)</span>}
+                        </dd>
+                      </dl>
+                      <div className="mt-2.5 flex *:flex-1">
+                        <SaveProjectionButton period="weekly" tenantId={t.id} label={`Save ${t.name} weekly projection`} />
+                      </div>
+                    </>
+                  ) : (
+                    <p className="mt-1 text-sm text-slate-500">Not enough data to project.</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <div className="hidden overflow-x-auto sm:block">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
@@ -113,7 +156,32 @@ export default async function ProjectionsPage() {
             {saved.length === 0 ? (
               <p className="text-sm text-slate-500">No snapshots saved yet. Save one to keep a reviewed record of this week’s estimate.</p>
             ) : (
-              <div className="overflow-x-auto">
+              <>
+              <ul className="-mx-4 divide-y divide-slate-100 sm:hidden" data-testid="saved-list">
+                {saved.map((p) => (
+                  <li key={p.id} className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-slate-900">
+                          {names.get(p.tenant_id) ?? <span className="text-slate-400">deleted tenant</span>}
+                        </div>
+                        <div className="mt-0.5 text-xs text-slate-500">
+                          <span className="capitalize">{p.target_period}</span> · saved {dateTime(p.created_at)}
+                        </div>
+                      </div>
+                      <div className="shrink-0 text-right text-base font-semibold tabular-nums">{rm(Number(p.projected_amount))}</div>
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <ConfidenceBadge confidence={p.confidence === null ? null : Number(p.confidence)} />
+                      <Badge tone={p.review_status === "approved" ? "emerald" : "slate"}>{p.review_status ?? "unreviewed"}</Badge>
+                    </div>
+                    <div className="mt-2 flex justify-end [&>div]:flex-none [&_button]:min-w-[5.5rem]">
+                      <ProjectionRowActions id={p.id} status={p.review_status} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="hidden overflow-x-auto sm:block">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
@@ -147,6 +215,7 @@ export default async function ProjectionsPage() {
                   </tbody>
                 </table>
               </div>
+              </>
             )}
           </Card>
         </>

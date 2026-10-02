@@ -56,7 +56,7 @@ export function CsvImport() {
           Choose CSV file
           <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
-        <button type="button" className="text-sm font-medium text-teal-700 hover:underline" onClick={() => { setText(sample()); setPreview(null); }}>
+        <button type="button" className="min-h-11 px-1 text-sm font-medium text-teal-700 hover:underline sm:min-h-0" onClick={() => { setText(sample()); setPreview(null); }}>
           Load sample rows
         </button>
       </div>
@@ -70,9 +70,13 @@ export function CsvImport() {
         }}
         rows={8}
         placeholder="tenant,date,amount,period_type,hour"
-        className={`${inputCls} font-mono text-xs`}
+        className={`${inputCls.replace("sm:text-sm", "sm:text-xs")} font-mono`}
+        wrap="off"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
       />
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2 *:flex-1 sm:*:flex-none">
         <button type="button" className={btnSecondary} disabled={!text.trim() || busy !== null} onClick={runPreview}>
           {busy === "preview" ? "Checking…" : "Preview & validate"}
         </button>
@@ -88,7 +92,27 @@ export function CsvImport() {
             <Badge tone="emerald">{preview.validCount} valid</Badge>
             {invalid > 0 && <Badge tone="rose">{invalid} with errors (skipped)</Badge>}
           </div>
-          <div className="max-h-96 overflow-auto">
+          {/* Phones: stacked rows */}
+          <ul className="divide-y divide-slate-100 sm:hidden" data-testid="csv-preview-list">
+            {preview.rows.map((r) => (
+              <li key={r.line} className={`px-4 py-2.5 ${r.error ? "bg-rose-50/50" : ""}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-900">{r.tenantName ?? r.raw.tenant ?? r.raw.unit ?? "—"}</div>
+                    <div className="text-xs text-slate-500">
+                      Line {r.line} · <span className="capitalize">{r.record?.period_type ?? r.raw.period_type ?? "—"}</span> ·{" "}
+                      {r.record ? dateTime(r.record.recorded_at) : r.raw.date ?? "—"}
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right text-sm font-semibold tabular-nums">
+                    {r.record ? rm(r.record.amount, { cents: true }) : r.raw.amount ?? "—"}
+                  </div>
+                </div>
+                <div className="mt-1 text-xs">{r.error ? <span className="text-rose-700">{r.error}</span> : <span className="text-emerald-700">OK</span>}</div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden max-h-96 overflow-auto sm:block">
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-slate-50">
                 <tr className="text-left text-xs uppercase tracking-wide text-slate-500">

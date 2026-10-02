@@ -4,6 +4,7 @@ import { useState } from "react";
 import { saveSale, type ActionState } from "@/app/actions";
 import type { PeriodType, SalesRecord, Tenant } from "@/lib/data/types";
 import { Field, btnPrimary, btnSecondary, inputCls } from "./ui";
+import { modalFooterCls } from "./Modal";
 import { dayKey, myHour, todayKey } from "@/lib/logic/dates";
 
 const PERIOD_HELP: Record<PeriodType, string> = {
@@ -116,7 +117,10 @@ export function SalesForm({
           name="amount"
           type="number"
           step="0.01"
+          min="0"
           inputMode="decimal"
+          enterKeyHint="done"
+          autoComplete="off"
           placeholder="e.g. 1500"
           defaultValue={record ? String(record.amount) : ""}
           className={inputCls}
@@ -129,7 +133,7 @@ export function SalesForm({
         </p>
       )}
 
-      <div className="flex justify-end gap-2 pt-1">
+      <div className={modalFooterCls}>
         {onCancel && (
           <button type="button" className={btnSecondary} onClick={onCancel}>
             Cancel

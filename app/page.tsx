@@ -60,7 +60,7 @@ export default async function Dashboard() {
         }
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Stat label="Today’s GTO" value={<span data-testid="today-total">{rm(todayTotal)}</span>} delta={pctChange(todayTotal, yesterdayTotal)} hint="vs yesterday" />
         <Stat label="Week to date" value={rm(wtd)} delta={pctChange(wtd, lwtd)} hint="vs same days last week" />
         <Stat label="Month to date" value={rm(mtd)} hint="hourly + daily records" />
@@ -79,7 +79,12 @@ export default async function Dashboard() {
         >
           <SalesChart data={wow} currentLabel="This week" previousLabel="Last week" height={260} />
         </Card>
-        <Card className="lg:col-span-2" title="Top tenants today" action={<span className="text-xs text-slate-500">Click a bar to drill in</span>}>
+        <Card className="lg:col-span-2" title="Top tenants today" action={
+            <span className="text-xs text-slate-500">
+              <span className="sm:hidden">Tap</span>
+              <span className="hidden sm:inline">Click</span> a bar to drill in
+            </span>
+          }>
           {reporting === 0 ? (
             <EmptyState title="No sales recorded today" body="Add today’s figures to see the ranking." />
           ) : (
@@ -95,8 +100,8 @@ export default async function Dashboard() {
         <Card className="lg:col-span-2" title="Tenant contribution today">
           <ul className="divide-y divide-slate-100">
             {ranks.map((r) => (
-              <li key={r.tenant.id} className="flex items-center justify-between gap-3 py-2.5">
-                <Link href={`/tenants/${r.tenant.id}`} className="min-w-0 hover:underline">
+              <li key={r.tenant.id} className="flex min-h-12 items-center justify-between gap-3 py-2.5">
+                <Link href={`/tenants/${r.tenant.id}`} className="min-w-0 py-1 hover:underline">
                   <div className="truncate text-sm font-medium text-slate-900">{r.tenant.name}</div>
                   <div className="text-xs text-slate-500">
                     {r.tenant.category ?? "—"} · {r.tenant.unit ?? "—"}

@@ -3,21 +3,24 @@ import type { ReactNode } from "react";
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+    <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-xl font-semibold tracking-tight break-words text-slate-900 sm:text-2xl">{title}</h1>
+        {subtitle && <div className="mt-1 text-sm text-slate-500">{subtitle}</div>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && (
+        // On phones every action grows to share the row, so wrapped buttons stay full, even targets.
+        <div className="flex flex-wrap items-center gap-2 *:grow sm:shrink-0 sm:*:grow-0">{actions}</div>
+      )}
     </div>
   );
 }
 
 export function Card({ children, className = "", title, action }: { children: ReactNode; className?: string; title?: ReactNode; action?: ReactNode }) {
   return (
-    <section className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm ${className}`}>
+    <section className={`min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}>
       {(title || action) && (
-        <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           {title && <h2 className="text-sm font-semibold text-slate-900">{title}</h2>}
           {action}
         </div>
@@ -29,10 +32,10 @@ export function Card({ children, className = "", title, action }: { children: Re
 
 export function Stat({ label, value, delta, hint }: { label: string; value: ReactNode; delta?: number | null; hint?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums text-slate-900">{value}</div>
-      <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+    <div className="min-w-0 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm sm:p-4">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 sm:text-xs">{label}</div>
+      <div className="mt-1 text-lg leading-tight font-semibold tabular-nums break-words text-slate-900 min-[400px]:text-xl sm:text-2xl">{value}</div>
+      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500">
         {delta !== undefined && <Delta value={delta} />}
         {hint}
       </div>
@@ -92,14 +95,17 @@ export function ButtonLink({ href, children, variant = "secondary" }: { href: st
   );
 }
 
+// Buttons are at least 44px tall on touch-sized screens (WCAG / Apple HIG target), compact from `sm` up.
+const touch = "min-h-11 touch-manipulation sm:min-h-0";
 export const btnPrimary =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60";
+  `inline-flex items-center justify-center gap-1.5 rounded-lg bg-teal-700 px-3.5 py-2 text-sm font-medium whitespace-nowrap text-white shadow-sm hover:bg-teal-800 active:bg-teal-900 disabled:cursor-not-allowed disabled:opacity-60 ${touch}`;
 export const btnSecondary =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60";
+  `inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium whitespace-nowrap text-slate-700 shadow-sm hover:bg-slate-50 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 ${touch}`;
 export const btnDanger =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-60";
+  `inline-flex items-center justify-center gap-1.5 rounded-lg border border-rose-300 bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap text-rose-700 hover:bg-rose-50 active:bg-rose-100 disabled:opacity-60 ${touch}`;
+// 16px text on phones stops iOS Safari zooming into focused fields; 44px tall for touch.
 export const inputCls =
-  "block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/20";
+  "block w-full min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/20 sm:min-h-0 sm:text-sm";
 
 export function Field({ label, error, children, htmlFor }: { label: string; error?: string; children: ReactNode; htmlFor: string }) {
   return (

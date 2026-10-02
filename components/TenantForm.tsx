@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { removeTenant, saveTenant, type ActionState } from "@/app/actions";
 import type { Tenant } from "@/lib/data/types";
-import { Modal } from "./Modal";
+import { Modal, modalFooterCls } from "./Modal";
 import { useToast } from "./Toast";
 import { Field, btnDanger, btnPrimary, btnSecondary, inputCls } from "./ui";
 
@@ -36,7 +36,7 @@ export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDo
     >
       {tenant && <input type="hidden" name="id" value={tenant.id} />}
       <Field label="Tenant name" htmlFor="t-name" error={e.name}>
-        <input id="t-name" name="name" defaultValue={tenant?.name} className={inputCls} placeholder="e.g. Coffee House" />
+        <input id="t-name" name="name" defaultValue={tenant?.name} className={inputCls} placeholder="e.g. Coffee House" autoComplete="off" enterKeyHint="next" />
       </Field>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field label="Category" htmlFor="t-cat">
@@ -56,6 +56,9 @@ export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDo
             name="rent_rate_pct"
             type="number"
             step="0.1"
+            min="0"
+            inputMode="decimal"
+            enterKeyHint="done"
             defaultValue={tenant?.rent_rate_pct ?? ""}
             className={inputCls}
             placeholder="8.0"
@@ -67,7 +70,7 @@ export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDo
           {e.form}
         </p>
       )}
-      <div className="flex justify-end gap-2">
+      <div className={modalFooterCls}>
         {onCancel && (
           <button type="button" className={btnSecondary} onClick={onCancel}>
             Cancel
@@ -130,7 +133,7 @@ export function ConfirmDelete({
       </button>
     );
   return (
-    <span className="inline-flex gap-1">
+    <span className="inline-flex flex-wrap gap-1">
       <button
         type="button"
         className={`${btnDanger} bg-rose-50`}
@@ -149,7 +152,7 @@ export function ConfirmDelete({
       >
         {busy ? "Deleting…" : confirmLabel}
       </button>
-      <button type="button" className="rounded-lg px-2 text-sm text-slate-600 hover:bg-slate-100" onClick={() => setArmed(false)}>
+      <button type="button" className="min-h-11 touch-manipulation rounded-lg px-3 text-sm text-slate-600 hover:bg-slate-100 sm:min-h-0 sm:px-2" onClick={() => setArmed(false)}>
         Cancel
       </button>
     </span>

@@ -15,7 +15,7 @@ export function SaleRowActions({ record, tenants }: { record: SalesRecord; tenan
   const router = useRouter();
   const toast = useToast();
   return (
-    <div className="inline-flex flex-wrap justify-end gap-1.5">
+    <div className="flex flex-wrap justify-end gap-2 *:flex-1 sm:inline-flex sm:gap-1.5 sm:*:flex-none">
       <button type="button" className={`${btnSecondary} px-3 py-1.5`} onClick={() => setOpen(true)}>
         Edit
       </button>
@@ -76,7 +76,7 @@ export function ProjectionRowActions({ id, status }: { id: string; status: strin
   const toast = useToast();
   const approved = status === "approved";
   return (
-    <div className="inline-flex flex-wrap justify-end gap-1.5">
+    <div className="flex flex-wrap justify-end gap-2 *:flex-1 sm:inline-flex sm:gap-1.5 sm:*:flex-none">
       <button
         type="button"
         className={`${btnSecondary} px-3 py-1.5`}

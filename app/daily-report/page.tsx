@@ -65,7 +65,7 @@ export default async function DailyReport({ searchParams }: { searchParams: Prom
         <ReportControls mode={mode} tenantId={tenant?.id} tenants={tenants.map((t) => ({ id: t.id, name: t.name }))} />
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Stat label={`Today · ${formatDay(today)}`} value={<span data-testid="report-today">{rm(todayPoint?.current ?? 0)}</span>} delta={pctChange(todayPoint?.current ?? 0, todayPoint?.previous ?? 0)} hint={`vs ${mode === "wow" ? "same day last week" : "same date last month"}`} />
         <Stat label={`${curLabel} to date`} value={rm(cur)} delta={pctChange(cur, prevToDate)} hint="vs same point last period" />
         <Stat label={`${prevLabel} (full)`} value={rm(prevFull)} />
@@ -82,7 +82,27 @@ export default async function DailyReport({ searchParams }: { searchParams: Prom
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card title="Day by day">
-          <div className="overflow-x-auto">
+          {/* Phones: compact two-line rows instead of a 4-column table */}
+          <ul className="-mx-4 divide-y divide-slate-100 sm:hidden" data-testid="day-list">
+            {series.map((p) => (
+              <li key={p.label} className={`flex items-center justify-between gap-3 px-4 py-2.5 ${p.currentDate === today ? "bg-teal-50/70" : ""}`}>
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-slate-800">
+                    {p.currentDate ? formatDay(p.currentDate) : p.label}
+                    {p.currentDate === today && <span className="ml-1.5 text-xs font-medium text-teal-700">Today</span>}
+                  </div>
+                  <div className="text-xs text-slate-500 tabular-nums">
+                    {prevLabel}: {p.previous === null ? "—" : rm(p.previous)}
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="text-sm font-semibold tabular-nums">{p.current === null ? "—" : rm(p.current)}</div>
+                  <div className="text-xs">{p.current === null ? "" : <Delta value={pctChange(p.current, p.previous ?? 0)} />}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto sm:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
@@ -107,7 +127,23 @@ export default async function DailyReport({ searchParams }: { searchParams: Prom
         </Card>
 
         <Card title="By tenant (period to date)">
-          <table className="w-full text-sm">
+          <ul className="-mx-4 divide-y divide-slate-100 sm:hidden">
+            {tenantRows.map(({ t, c, p, change }) => (
+              <li key={t.id}>
+                <Link href={`/tenants/${t.id}`} className="flex min-h-14 items-center justify-between gap-3 px-4 py-2.5 active:bg-slate-50">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-slate-900">{t.name}</div>
+                    <div className="text-xs text-slate-500 tabular-nums">Prior to date: {rm(p)}</div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-sm font-semibold tabular-nums">{rm(c)}</div>
+                    <div className="text-xs">{c || p ? <Delta value={change} /> : <span className="text-slate-400">no data</span>}</div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <table className="hidden w-full text-sm sm:table">
             <thead>
               <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
                 <th className="py-2 pr-3 font-medium">Tenant</th>
