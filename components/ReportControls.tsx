@@ -44,7 +44,7 @@ export function ReportControls({
       </label>
       <select
         id="tenant-filter"
-        className={`${inputCls} w-auto`}
+        className={inputCls.replace("w-full", "w-full sm:w-72")}
         value={tenantId ?? ""}
         onChange={(e) => router.push(href(mode, e.target.value || undefined))}
       >

@@ -83,7 +83,7 @@ export default async function Dashboard() {
           {reporting === 0 ? (
             <EmptyState title="No sales recorded today" body="Add today’s figures to see the ranking." />
           ) : (
-            <TenantBars data={ranks.slice(0, 8).map((r) => ({ id: r.tenant.id, name: r.tenant.name, amount: r.today }))} />
+            <TenantBars data={ranks.filter((r) => r.today > 0).slice(0, 8).map((r) => ({ id: r.tenant.id, name: r.tenant.name, amount: r.today }))} />
           )}
         </Card>
       </div>

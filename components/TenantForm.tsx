@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { removeTenant, saveTenant, type ActionState } from "@/app/actions";
 import type { Tenant } from "@/lib/data/types";
@@ -11,14 +11,29 @@ import { Field, btnDanger, btnPrimary, btnSecondary, inputCls } from "./ui";
 const CATEGORIES = ["F&B", "Fashion", "Electronics", "Grocery", "Kids", "Health & Beauty", "Services", "Entertainment", "Other"];
 
 export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDone: (msg: string) => void; onCancel?: () => void }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveTenant, {});
-  useEffect(() => {
-    if (state.ok && state.message) onDone(state.message);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.nonce]);
+  const [state, setState] = useState<ActionState>({});
+  const [pending, setPending] = useState(false);
+  async function submit(ev: React.FormEvent<HTMLFormElement>) {
+    ev.preventDefault();
+    const fd = new FormData(ev.currentTarget);
+    setPending(true);
+    try {
+      const r = await saveTenant({}, fd);
+      setState(r);
+      if (r.ok) onDone(r.message ?? "Saved.");
+    } catch {
+      setState({ errors: { form: "Couldn’t reach the server. Try again." } });
+    } finally {
+      setPending(false);
+    }
+  }
   const e = state.errors ?? {};
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form
+      onSubmit={submit}
+      className="space-y-4"
+      noValidate
+    >
       {tenant && <input type="hidden" name="id" value={tenant.id} />}
       <Field label="Tenant name" htmlFor="t-name" error={e.name}>
         <input id="t-name" name="name" defaultValue={tenant?.name} className={inputCls} placeholder="e.g. Coffee House" />

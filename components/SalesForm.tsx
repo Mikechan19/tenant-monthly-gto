@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useState } from "react";
 import { saveSale, type ActionState } from "@/app/actions";
 import type { PeriodType, SalesRecord, Tenant } from "@/lib/data/types";
 import { Field, btnPrimary, btnSecondary, inputCls } from "./ui";
@@ -26,30 +26,38 @@ export function SalesForm({
   onDone?: (message: string) => void;
   onCancel?: () => void;
 }) {
-  const [state, action, pending] = useActionState<ActionState, FormData>(saveSale, {});
+  const [state, setState] = useState<ActionState>({});
+  const [pending, setPending] = useState(false);
   const [period, setPeriod] = useState<PeriodType>(record?.period_type ?? "daily");
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (state.ok && state.message) onDone?.(state.message);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.nonce]);
 
   const errors = { ...state.errors, ...clientErrors } as Record<string, string | undefined>;
   const today = todayKey();
 
-  function validate(e: React.FormEvent<HTMLFormElement>) {
+  // Submitted manually (not via <form action>) so fields keep their values when the
+  // server returns a validation error, and the modal closes as soon as the write lands.
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const errs: Record<string, string> = {};
     if (!fd.get("tenant_id")) errs.tenant_id = "Please select a tenant.";
-    const amt = String(fd.get("amount") ?? "");
-    if (amt === "") errs.amount = "Enter a sales amount.";
+    if (String(fd.get("amount") ?? "") === "") errs.amount = "Enter a sales amount.";
     setClientErrors(errs);
-    if (Object.keys(errs).length) e.preventDefault();
+    if (Object.keys(errs).length) return;
+    setPending(true);
+    try {
+      const r = await saveSale({}, fd);
+      setState(r);
+      if (r.ok) onDone?.(r.message ?? "Saved.");
+    } catch {
+      setState({ errors: { form: "Couldn’t reach the server. Check your connection and try again." } });
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
-    <form action={action} onSubmit={validate} className="space-y-4" noValidate>
+    <form onSubmit={submit} className="space-y-4" noValidate>
       {record && <input type="hidden" name="id" value={record.id} />}
       <Field label="Tenant" htmlFor="tenant_id" error={errors.tenant_id}>
         <select id="tenant_id" name="tenant_id" defaultValue={record?.tenant_id ?? defaultTenantId ?? ""} className={inputCls}>
