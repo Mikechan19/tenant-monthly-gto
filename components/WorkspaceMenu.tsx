@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState } from "react";
 import { signOut } from "@/app/auth/actions";
 import { switchTeam } from "@/app/team/actions";
 import { ROLE_LABEL } from "@/lib/logic/team";
@@ -14,7 +14,7 @@ export function WorkspaceMenu() {
   const ws = useWorkspace();
   const router = useRouter();
   const toast = useToast();
-  const [pending, start] = useTransition();
+  const [pending, setPending] = useState(false);
   if (!ws) return null;
   const active = ws.active;
 
@@ -30,13 +30,25 @@ export function WorkspaceMenu() {
               id="team-switch"
               value={active.id}
               disabled={pending}
-              onChange={(e) =>
-                start(async () => {
+              onChange={async (e) => {
+                // Plain async (not a transition) + full reload: every screen's data changes with the team,
+                // and a reload can't get stuck behind an in-flight client navigation.
+                setPending(true);
+                try {
                   const r = await switchTeam(e.target.value);
-                  if (!r.ok) toast(r.errors?.form ?? "Could not switch team.", "error");
-                  router.refresh();
-                })
-              }
+                  if (!r.ok) {
+                    toast(r.errors?.form ?? "Could not switch team.", "error");
+                    setPending(false);
+                    router.refresh();
+                    return;
+                  }
+                  // A tenant page of the old team would 404 in the new one.
+                  window.location.assign(/^\/tenants\/[^/]+/.test(window.location.pathname) ? "/tenants" : window.location.pathname);
+                } catch {
+                  toast("Couldn’t reach the server. Try again.", "error");
+                  setPending(false);
+                }
+              }}
               className="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm font-medium text-slate-900"
             >
               {ws.teams.map((t) => (

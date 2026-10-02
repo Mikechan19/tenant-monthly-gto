@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { redirect, unstable_rethrow } from "next/navigation";
+import { unstable_rethrow } from "next/navigation";
 import { check, db, DataError } from "@/lib/data/db";
 import { getWorkspace, writeDenied } from "@/lib/data/team";
 import { isRole, TEAM_COOKIE, validateInvite, validateTeamName, type Role } from "@/lib/logic/team";
@@ -11,6 +11,8 @@ export type TeamState = {
   ok?: boolean;
   message?: string;
   token?: string;
+  /** Set when the workspace context changed; the client does a full navigation there. */
+  redirectTo?: string;
   errors?: { email?: string; role?: string; name?: string; form?: string };
   nonce?: number;
 };
@@ -55,7 +57,7 @@ export async function createTeam(_prev: TeamState, fd: FormData): Promise<TeamSt
   }
   await setActiveTeam(teamId);
   refresh();
-  redirect("/");
+  return { ok: true, redirectTo: "/" };
 }
 
 export async function switchTeam(teamId: string): Promise<TeamState> {
@@ -129,7 +131,7 @@ export async function acceptInvite(token: string): Promise<TeamState> {
   }
   await setActiveTeam(teamId);
   refresh();
-  redirect("/");
+  return { ok: true, redirectTo: "/" };
 }
 
 // ── members ─────────────────────────────────────────────────────────────────
@@ -178,5 +180,5 @@ export async function leaveTeam(): Promise<TeamState> {
   }
   (await cookies()).delete(TEAM_COOKIE);
   refresh();
-  redirect("/");
+  return { ok: true, redirectTo: "/" };
 }

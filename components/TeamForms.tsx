@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   acceptInvite,
@@ -17,6 +17,55 @@ import { inviteUrl, ROLE_HELP, ROLE_LABEL, ROLES, type Role } from "@/lib/logic/
 import { useToast } from "./Toast";
 import { Field, btnDanger, btnPrimary, btnSecondary, inputCls } from "./ui";
 
+
+/**
+ * Submit a server action from an event handler and keep pending/result in local state.
+ * Deliberately not a React transition (form action / action-state hooks): a transition can't commit
+ * while another one (e.g. a client navigation whose fetch was aborted) is still suspended, which
+ * left buttons stuck on "Creating…" on phones. Plain state updates aren't entangled with that.
+ */
+function useServerAction<A extends unknown[]>(fn: (...args: A) => Promise<TeamState>) {
+  const [state, setState] = useState<TeamState>({});
+  const [pending, setPending] = useState(false);
+  const busy = useRef(false);
+  const run = useCallback(
+    async (...args: A): Promise<TeamState> => {
+      if (busy.current) return {};
+      busy.current = true;
+      setPending(true);
+      try {
+        const r = (await fn(...args)) ?? {};
+        if (r.redirectTo) {
+          window.location.assign(r.redirectTo); // workspace changed — reload everything
+          return r; // stay "pending" until the browser navigates
+        }
+        setState(r);
+        busy.current = false;
+        setPending(false);
+        return r;
+      } catch {
+        const r = { ok: false, errors: { form: "Couldn’t reach the server. Check your connection and try again." } };
+        setState(r);
+        busy.current = false;
+        setPending(false);
+        return r;
+      }
+    },
+    [fn],
+  );
+  return { state, pending, run };
+}
+
+/** <form onSubmit> wrapper around useServerAction for (prev, FormData) actions. */
+function useFormSubmit(action: (prev: TeamState, fd: FormData) => Promise<TeamState>) {
+  const { state, pending, run } = useServerAction((fd: FormData) => action({}, fd));
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void run(new FormData(e.currentTarget));
+  };
+  return { state, pending, onSubmit };
+}
+
 function FormError({ state }: { state: TeamState }) {
   return state.errors?.form ? (
     <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
@@ -26,9 +75,9 @@ function FormError({ state }: { state: TeamState }) {
 }
 
 export function CreateTeamForm({ cta = "Create workspace" }: { cta?: string }) {
-  const [state, action, pending] = useActionState<TeamState, FormData>(createTeam, {});
+  const { state, pending, onSubmit } = useFormSubmit(createTeam);
   return (
-    <form action={action} className="space-y-3" noValidate>
+    <form onSubmit={onSubmit} className="space-y-3" noValidate>
       <Field label="Team name" htmlFor="team-name" error={state.errors?.name}>
         <input id="team-name" name="name" className={inputCls} placeholder="e.g. SPSB Leasing" maxLength={80} />
       </Field>
@@ -41,26 +90,15 @@ export function CreateTeamForm({ cta = "Create workspace" }: { cta?: string }) {
 }
 
 export function AcceptInviteButton({ token, label = "Accept invite" }: { token: string; label?: string }) {
-  const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const { state, pending, run } = useServerAction(acceptInvite);
   return (
     <div className="space-y-2">
-      <button
-        type="button"
-        className={btnPrimary}
-        disabled={pending}
-        onClick={() =>
-          start(async () => {
-            const r = await acceptInvite(token);
-            if (r && !r.ok) setError(r.errors?.form ?? "Could not accept invite.");
-          })
-        }
-      >
+      <button type="button" className={btnPrimary} disabled={pending} onClick={() => void run(token)}>
         {pending ? "Joining…" : label}
       </button>
-      {error && (
+      {state.ok === false && (
         <p role="alert" className="text-sm text-rose-700">
-          {error}
+          {state.errors?.form ?? "Could not accept invite."}
         </p>
       )}
     </div>
@@ -68,13 +106,13 @@ export function AcceptInviteButton({ token, label = "Accept invite" }: { token: 
 }
 
 export function RenameTeamForm({ name }: { name: string }) {
-  const [state, action, pending] = useActionState<TeamState, FormData>(renameTeam, {});
+  const { state, pending, onSubmit } = useFormSubmit(renameTeam);
   const toast = useToast();
   useEffect(() => {
     if (state.ok && state.message) toast(state.message);
   }, [state.nonce]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <form action={action} className="flex flex-col gap-2 sm:flex-row sm:items-end" noValidate>
+    <form onSubmit={onSubmit} className="flex flex-col gap-2 sm:flex-row sm:items-end" noValidate>
       <div className="flex-1">
         <Field label="Team name" htmlFor="rename" error={state.errors?.name ?? state.errors?.form}>
           <input id="rename" name="name" defaultValue={name} className={inputCls} maxLength={80} />
@@ -115,10 +153,10 @@ function CopyLink({ token }: { token: string }) {
 
 export function InviteForm() {
   // The action revalidates the layout itself, so the pending-invites list updates without router.refresh().
-  const [state, action, pending] = useActionState<TeamState, FormData>(inviteMember, {});
+  const { state, pending, onSubmit } = useFormSubmit(inviteMember);
   return (
     <div className="space-y-3">
-      <form action={action} className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end" noValidate>
+      <form onSubmit={onSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-end" noValidate>
         <Field label="Colleague's email" htmlFor="invite-email" error={state.errors?.email}>
           <input id="invite-email" name="email" type="email" className={inputCls} placeholder="colleague@selangorproperties.com.my" />
         </Field>
@@ -135,9 +173,11 @@ export function InviteForm() {
           {pending ? "Creating…" : "Create invite"}
         </button>
       </form>
-      <FormError state={state} />
+      <div className="[overflow-wrap:anywhere]">
+        <FormError state={state} />
+      </div>
       {state.ok && state.token && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" role="status">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900 [overflow-wrap:anywhere]" role="status">
           <p className="mb-2">
             {state.message} Email isn’t sent automatically — copy this link and send it to them. They sign in (or sign up) with that email
             address and join the team.
@@ -157,7 +197,7 @@ export function InviteForm() {
 }
 
 export function InviteRow({ id, token }: { id: string; token: string }) {
-  const [pending, start] = useTransition();
+  const { pending, run } = useServerAction(revokeInvite);
   const router = useRouter();
   const toast = useToast();
   return (
@@ -169,13 +209,12 @@ export function InviteRow({ id, token }: { id: string; token: string }) {
         type="button"
         className={btnDanger}
         disabled={pending}
-        onClick={() =>
-          start(async () => {
-            const r = await revokeInvite(id);
-            toast(r.ok ? "Invite revoked." : r.errors?.form ?? "Could not revoke.", r.ok ? undefined : "error");
-            router.refresh();
-          })
-        }
+        onClick={async () => {
+          const r = await run(id);
+          if (r.ok === undefined) return; // a revoke is already running
+          toast(r.ok ? "Invite revoked." : r.errors?.form ?? "Could not revoke.", r.ok ? undefined : "error");
+          router.refresh();
+        }}
       >
         {pending ? "Revoking…" : "Revoke"}
       </button>
@@ -184,17 +223,17 @@ export function InviteRow({ id, token }: { id: string; token: string }) {
 }
 
 export function MemberControls({ userId, role, isSelf }: { userId: string; role: Role; isSelf: boolean }) {
-  const [pending, start] = useTransition();
   const [armed, setArmed] = useState(false);
   const router = useRouter();
   const toast = useToast();
-  const run = (fn: () => Promise<TeamState>, ok: string) =>
-    start(async () => {
-      const r = await fn();
-      toast(r.ok ? ok : r.errors?.form ?? "Something went wrong.", r.ok ? undefined : "error");
-      setArmed(false);
-      router.refresh();
-    });
+  const { pending, run: exec } = useServerAction((fn: () => Promise<TeamState>) => fn());
+  const run = async (fn: () => Promise<TeamState>, ok: string) => {
+    const r = await exec(fn);
+    if (r.ok === undefined) return;
+    toast(r.ok ? ok : r.errors?.form ?? "Something went wrong.", r.ok ? undefined : "error");
+    setArmed(false);
+    router.refresh();
+  };
   return (
     <div className="inline-flex flex-wrap items-center justify-end gap-1.5">
       <label className="sr-only" htmlFor={`role-${userId}`}>
@@ -234,7 +273,7 @@ export function MemberControls({ userId, role, isSelf }: { userId: string; role:
 
 export function LeaveTeamButton({ teamName }: { teamName: string }) {
   const [armed, setArmed] = useState(false);
-  const [pending, start] = useTransition();
+  const { pending, run } = useServerAction(leaveTeam);
   const toast = useToast();
   if (!armed)
     return (
@@ -248,13 +287,13 @@ export function LeaveTeamButton({ teamName }: { teamName: string }) {
         type="button"
         className={`${btnDanger} bg-rose-50`}
         disabled={pending}
-        onClick={() =>
-          start(async () => {
-            const r = await leaveTeam();
-            if (r && !r.ok) toast(r.errors?.form ?? "Could not leave team.", "error");
+        onClick={async () => {
+          const r = await run();
+          if (r.ok === false) {
+            toast(r.errors?.form ?? "Could not leave team.", "error");
             setArmed(false);
-          })
-        }
+          }
+        }}
       >
         {pending ? "Leaving…" : `Leave ${teamName}`}
       </button>
