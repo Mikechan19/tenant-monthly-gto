@@ -50,7 +50,7 @@ describe("dates & aggregation (Malaysia time)", () => {
   it("week starts Monday", () => expect(weekStart(today)).toBe("2026-09-28"));
   const rec = (amount: number, at: Date, period: SalesRecord["period_type"] = "daily"): SalesRecord => ({
     id: Math.random().toString(), tenant_id: "t1", period_type: period, amount, recorded_at: at.toISOString(),
-    source: "manual", team_id: "team1", user_id: null, created_at: "",
+    source: "manual", outlet: null, team_id: "team1", user_id: null, created_at: "",
   });
   it("daily totals sum hourly + daily, exclude weekly/monthly", () => {
     const recs = [

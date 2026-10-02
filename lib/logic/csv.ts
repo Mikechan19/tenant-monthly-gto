@@ -1,11 +1,12 @@
 import type { PeriodType, Tenant } from "@/lib/data/types";
 import { parseSalesFields, periodTimestamp } from "./records";
+import { parseOutlet } from "./terms";
 
 export type ImportRow = {
   line: number;
   raw: Record<string, string>;
   tenantName?: string;
-  record?: { tenant_id: string; period_type: PeriodType; amount: number; recorded_at: string };
+  record?: { tenant_id: string; period_type: PeriodType; amount: number; recorded_at: string; outlet: string | null };
   error?: string;
 };
 
@@ -57,6 +58,9 @@ const ALIASES: Record<string, string> = {
   day: "date",
   recorded_at: "date",
   hour: "hour",
+  outlet: "outlet",
+  outlet_name: "outlet",
+  branch: "outlet",
 };
 
 /** Accepts YYYY-MM-DD, DD/MM/YYYY (Malaysian format) or an ISO timestamp. */
@@ -75,7 +79,7 @@ export function normaliseDate(v: string): { date: string; hour?: number } | null
 
 /**
  * Parses CSV text into validated rows. Columns (header required, case-insensitive):
- * tenant (name) or unit, amount, date, period_type (default "daily"), hour (hourly rows).
+ * tenant (name) or unit, amount, date, period_type (default "daily"), hour (hourly rows), outlet (optional).
  */
 export function parseCsv(text: string, tenants: Tenant[]): ImportRow[] {
   const rows = splitCsv(text);
@@ -107,6 +111,8 @@ export function parseCsv(text: string, tenants: Tenant[]): ImportRow[] {
     const parsed = parseSalesFields({ tenant_id: tenant.id, period_type: period, amount: raw.amount, date: d.date, hour });
     if (!parsed.ok)
       return { line, raw, tenantName: tenant.name, error: Object.values(parsed.errors).join(" ") };
+    const outlet = parseOutlet(raw.outlet);
+    if (!outlet.ok) return { line, raw, tenantName: tenant.name, error: outlet.error };
     const v = parsed.value;
     return {
       line,
@@ -117,6 +123,7 @@ export function parseCsv(text: string, tenants: Tenant[]): ImportRow[] {
         period_type: v.period_type,
         amount: v.amount,
         recorded_at: periodTimestamp(v.period_type, v.date, v.hour).toISOString(),
+        outlet: outlet.value,
       },
     };
   });

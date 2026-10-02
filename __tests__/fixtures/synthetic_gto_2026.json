@@ -1,0 +1,576 @@
+{
+ "year": 2026,
+ "synthetic": true,
+ "tenants": [
+  {
+   "code": "A",
+   "name": "Demo Tenant A",
+   "property": "Demo Mall North",
+   "tiers": [
+    {
+     "up_to": 400000,
+     "rate": 0.0
+    },
+    {
+     "up_to": null,
+     "rate": 0.03
+    }
+   ],
+   "sst_pct": 8.0,
+   "months": {
+    "1": {
+     "gross": 912345,
+     "gto_exact": "15370.35",
+     "gto_cents": "15370.35",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 512345,
+       "excel_exact": "15370.35",
+       "excel_cents": "15370.35"
+      }
+     ],
+     "after_sst_exact": "16599.978",
+     "after_sst_cents": "16599.98",
+     "sheet": "M01(A)"
+    },
+    "2": {
+     "gross": 874120,
+     "gto_exact": "14223.6",
+     "gto_cents": "14223.60",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 474120,
+       "excel_exact": "14223.6",
+       "excel_cents": "14223.60"
+      }
+     ],
+     "after_sst_exact": "15361.488",
+     "after_sst_cents": "15361.49",
+     "sheet": "M02(A)"
+    },
+    "3": {
+     "gross": 385000,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 385000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 0,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      }
+     ],
+     "after_sst_exact": "0",
+     "after_sst_cents": "0.00",
+     "sheet": "M03(A)"
+    },
+    "4": {
+     "gross": 1000500,
+     "gto_exact": "18015",
+     "gto_cents": "18015.00",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 600500,
+       "excel_exact": "18015",
+       "excel_cents": "18015.00"
+      }
+     ],
+     "after_sst_exact": "19456.2",
+     "after_sst_cents": "19456.20",
+     "sheet": "M04(A)"
+    },
+    "5": {
+     "gross": 400000,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 0,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      }
+     ],
+     "after_sst_exact": "0",
+     "after_sst_cents": "0.00",
+     "sheet": "M05(A)"
+    },
+    "6": {
+     "gross": 955501,
+     "gto_exact": "16665.03",
+     "gto_cents": "16665.03",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 555501,
+       "excel_exact": "16665.03",
+       "excel_cents": "16665.03"
+      }
+     ],
+     "after_sst_exact": "17998.2324",
+     "after_sst_cents": "17998.23",
+     "sheet": "M06(A)"
+    },
+    "7": {
+     "gross": 899999.99,
+     "gto_exact": "14999.9997",
+     "gto_cents": "15000.00",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 499999.99,
+       "excel_exact": "14999.9997",
+       "excel_cents": "15000.00"
+      }
+     ],
+     "after_sst_exact": "16199.999676",
+     "after_sst_cents": "16200.00",
+     "sheet": "M07(A)"
+    },
+    "8": {
+     "gross": 1210437,
+     "gto_exact": "24313.11",
+     "gto_cents": "24313.11",
+     "bands": [
+      {
+       "label": "0 - 400,000",
+       "rate": 0.0,
+       "sales": 400000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "400,001 - Above",
+       "rate": 0.03,
+       "sales": 810437,
+       "excel_exact": "24313.11",
+       "excel_cents": "24313.11"
+      }
+     ],
+     "after_sst_exact": "26258.1588",
+     "after_sst_cents": "26258.16",
+     "sheet": "M08(A)"
+    }
+   }
+  },
+  {
+   "code": "B",
+   "name": "Demo Tenant B",
+   "property": "Demo Mall South",
+   "tiers": [
+    {
+     "up_to": 150000,
+     "rate": 0.0
+    },
+    {
+     "up_to": 350000,
+     "rate": 0.015
+    },
+    {
+     "up_to": null,
+     "rate": 0.045
+    }
+   ],
+   "sst_pct": 8.0,
+   "months": {
+    "1": {
+     "gross": 512345,
+     "gto_exact": "10305.525",
+     "gto_cents": "10305.53",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 200000,
+       "excel_exact": "3000",
+       "excel_cents": "3000.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 162345,
+       "excel_exact": "7305.525",
+       "excel_cents": "7305.53"
+      }
+     ],
+     "after_sst_exact": "11129.967",
+     "after_sst_cents": "11129.97",
+     "sheet": "M01(B)"
+    },
+    "2": {
+     "gross": 260000,
+     "gto_exact": "1650",
+     "gto_cents": "1650.00",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 110000,
+       "excel_exact": "1650",
+       "excel_cents": "1650.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 0,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      }
+     ],
+     "after_sst_exact": "1782",
+     "after_sst_cents": "1782.00",
+     "sheet": "M02(B)"
+    },
+    "3": {
+     "gross": 150000,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 0,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 0,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      }
+     ],
+     "after_sst_exact": "0",
+     "after_sst_cents": "0.00",
+     "sheet": "M03(B)"
+    },
+    "4": {
+     "gross": 350000,
+     "gto_exact": "3000",
+     "gto_cents": "3000.00",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 200000,
+       "excel_exact": "3000",
+       "excel_cents": "3000.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 0,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      }
+     ],
+     "after_sst_exact": "3240",
+     "after_sst_cents": "3240.00",
+     "sheet": "M04(B)"
+    },
+    "5": {
+     "gross": 643219,
+     "gto_exact": "16194.855",
+     "gto_cents": "16194.86",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 200000,
+       "excel_exact": "3000",
+       "excel_cents": "3000.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 293219,
+       "excel_exact": "13194.855",
+       "excel_cents": "13194.86"
+      }
+     ],
+     "after_sst_exact": "17490.4434",
+     "after_sst_cents": "17490.44",
+     "sheet": "M05(B)"
+    },
+    "6": {
+     "gross": 488888,
+     "gto_exact": "9249.96",
+     "gto_cents": "9249.96",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 200000,
+       "excel_exact": "3000",
+       "excel_cents": "3000.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 138888,
+       "excel_exact": "6249.96",
+       "excel_cents": "6249.96"
+      }
+     ],
+     "after_sst_exact": "9989.9568",
+     "after_sst_cents": "9989.96",
+     "sheet": "M06(B)"
+    },
+    "7": {
+     "gross": 599001,
+     "gto_exact": "14205.045",
+     "gto_cents": "14205.05",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 200000,
+       "excel_exact": "3000",
+       "excel_cents": "3000.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 249001,
+       "excel_exact": "11205.045",
+       "excel_cents": "11205.05"
+      }
+     ],
+     "after_sst_exact": "15341.4486",
+     "after_sst_cents": "15341.45",
+     "sheet": "M07(B)"
+    },
+    "8": {
+     "gross": 700001,
+     "gto_exact": "18750.045",
+     "gto_cents": "18750.05",
+     "bands": [
+      {
+       "label": "0 - 150,000",
+       "rate": 0.0,
+       "sales": 150000,
+       "excel_exact": "0",
+       "excel_cents": "0.00"
+      },
+      {
+       "label": "150,001 - 350,000",
+       "rate": 0.015,
+       "sales": 200000,
+       "excel_exact": "3000",
+       "excel_cents": "3000.00"
+      },
+      {
+       "label": "350,001 - Above",
+       "rate": 0.045,
+       "sales": 350001,
+       "excel_exact": "15750.045",
+       "excel_cents": "15750.05"
+      }
+     ],
+     "after_sst_exact": "20250.0486",
+     "after_sst_cents": "20250.05",
+     "sheet": "M08(B)"
+    }
+   }
+  },
+  {
+   "code": "C",
+   "name": "Demo Tenant C",
+   "property": null,
+   "tiers": [
+    {
+     "up_to": 300000,
+     "rate": 0.0
+    },
+    {
+     "up_to": null,
+     "rate": 0.05
+    }
+   ],
+   "sst_pct": 0,
+   "months": {
+    "1": {
+     "gross": 180660.75,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "outlets": {
+      "Outlet North": 120450.5,
+      "Outlet South": 60210.25
+     }
+    },
+    "2": {
+     "gross": 186999.9,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "outlets": {
+      "Outlet North": 131000,
+      "Outlet South": 55999.9
+     }
+    },
+    "3": {
+     "gross": 138765.4,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "outlets": {
+      "Outlet North": 98765.4,
+      "Outlet South": 40000
+     }
+    },
+    "4": {
+     "gross": 312345.67,
+     "gto_exact": "617.2835",
+     "gto_cents": "617.28",
+     "outlets": {
+      "Outlet North": 160000,
+      "Outlet South": 152345.67
+     }
+    },
+    "5": {
+     "gross": 210000.01,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "outlets": {
+      "Outlet North": 140000.01,
+      "Outlet South": 70000
+     }
+    },
+    "6": {
+     "gross": 300000,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "outlets": {
+      "Outlet North": 150000,
+      "Outlet South": 150000
+     }
+    },
+    "7": {
+     "gross": 121212.12,
+     "gto_exact": "0",
+     "gto_cents": "0.00",
+     "outlets": {
+      "Outlet North": 101010.1,
+      "Outlet South": 20202.02
+     }
+    }
+   },
+   "outlets": [
+    "Outlet North",
+    "Outlet South"
+   ],
+   "base_rent_monthly": 12500,
+   "base_rent_psf": 5,
+   "lease_start": "2025-07-01",
+   "lease_end": "2028-06-30"
+  }
+ ],
+ "excel_summary_sheet": {}
+}
