@@ -7,6 +7,7 @@ import { rm, dateTime } from "@/lib/format";
 import { addDays, todayKey } from "@/lib/logic/dates";
 import { useToast } from "./Toast";
 import { Badge, btnPrimary, btnSecondary, inputCls } from "./ui";
+import { useCanWrite } from "./Workspace";
 
 const sample = () => `tenant,date,amount,period_type,hour
 Coffee House,${todayKey()},420,hourly,18
@@ -20,6 +21,7 @@ export function CsvImport() {
   const [busy, setBusy] = useState<"preview" | "commit" | null>(null);
   const router = useRouter();
   const toast = useToast();
+  const canWrite = useCanWrite();
 
   async function onFile(f: File | undefined) {
     if (!f) return;
@@ -48,6 +50,13 @@ export function CsvImport() {
   }
 
   const invalid = preview ? preview.rows.length - preview.validCount : 0;
+
+  if (!canWrite)
+    return (
+      <p className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
+        You have <b>viewer</b> access to this team, so you can’t import sales. Ask a team admin to make you an analyst.
+      </p>
+    );
 
   return (
     <div className="space-y-4">

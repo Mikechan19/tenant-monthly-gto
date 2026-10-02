@@ -7,6 +7,7 @@ export type Tenant = {
   category: string | null;
   unit: string | null;
   rent_rate_pct: number | null;
+  team_id: string;
   user_id: string | null;
   created_at: string;
 };
@@ -18,6 +19,7 @@ export type SalesRecord = {
   amount: number;
   recorded_at: string;
   source: string | null;
+  team_id: string;
   user_id: string | null;
   created_at: string;
 };
@@ -31,5 +33,6 @@ export type SavedProjection = {
   confidence: number | null;
   source: string | null;
   review_status: string | null;
+  team_id: string;
   created_at: string;
 };

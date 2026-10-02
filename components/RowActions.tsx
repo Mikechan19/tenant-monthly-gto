@@ -9,11 +9,13 @@ import { SalesForm } from "./SalesForm";
 import { ConfirmDelete } from "./TenantForm";
 import { useToast } from "./Toast";
 import { btnPrimary, btnSecondary } from "./ui";
+import { useCanWrite } from "./Workspace";
 
 export function SaleRowActions({ record, tenants }: { record: SalesRecord; tenants: Pick<Tenant, "id" | "name" | "unit">[] }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  if (!useCanWrite()) return <span className="text-xs text-slate-400">View only</span>;
   return (
     <div className="flex flex-wrap justify-end gap-2 *:flex-1 sm:inline-flex sm:gap-1.5 sm:*:flex-none">
       <button type="button" className={`${btnSecondary} px-3 py-1.5`} onClick={() => setOpen(true)}>
@@ -50,6 +52,7 @@ export function SaveProjectionButton({
   const [busy, setBusy] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  if (!useCanWrite()) return null;
   return (
     <button
       type="button"
@@ -75,6 +78,7 @@ export function ProjectionRowActions({ id, status }: { id: string; status: strin
   const router = useRouter();
   const toast = useToast();
   const approved = status === "approved";
+  if (!useCanWrite()) return null;
   return (
     <div className="flex flex-wrap justify-end gap-2 *:flex-1 sm:inline-flex sm:gap-1.5 sm:*:flex-none">
       <button

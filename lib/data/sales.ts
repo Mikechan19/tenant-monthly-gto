@@ -1,5 +1,6 @@
 import "server-only";
 import { check, db } from "./db";
+import { activeTeamId } from "./team";
 import type { PeriodType, SalesRecord } from "./types";
 
 export type SalesInput = {
@@ -14,12 +15,13 @@ const PAGE = 1000;
 
 /** All records with recorded_at in [from, to). Paginates past PostgREST's row cap. */
 export async function listSalesBetween(from: Date, to: Date, tenantId?: string): Promise<SalesRecord[]> {
-  const s = await db();
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
   const out: SalesRecord[] = [];
   for (let offset = 0; ; offset += PAGE) {
     let q = s
       .from("sales_records")
       .select("*")
+      .eq("team_id", team)
       .gte("recorded_at", from.toISOString())
       .lt("recorded_at", to.toISOString())
       .order("recorded_at")
@@ -34,11 +36,12 @@ export async function listSalesBetween(from: Date, to: Date, tenantId?: string):
 }
 
 export async function listRecentSales(tenantId: string, limit = 50): Promise<SalesRecord[]> {
-  const s = await db();
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
   return check(
     await s
       .from("sales_records")
       .select("*")
+      .eq("team_id", team)
       .eq("tenant_id", tenantId)
       .order("recorded_at", { ascending: false })
       .limit(limit),
@@ -46,23 +49,32 @@ export async function listRecentSales(tenantId: string, limit = 50): Promise<Sal
 }
 
 export async function countSales(tenantId: string): Promise<number> {
-  const s = await db();
-  const res = await s.from("sales_records").select("id", { count: "exact", head: true }).eq("tenant_id", tenantId);
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
+  const res = await s
+    .from("sales_records")
+    .select("id", { count: "exact", head: true })
+    .eq("team_id", team)
+    .eq("tenant_id", tenantId);
   if (res.error) check(res);
   return res.count ?? 0;
 }
 
 export async function insertSales(rows: SalesInput[]): Promise<SalesRecord[]> {
-  const s = await db();
-  return check(await s.from("sales_records").insert(rows.map((r) => ({ source: "manual", ...r }))).select());
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
+  return check(
+    await s
+      .from("sales_records")
+      .insert(rows.map((r) => ({ source: "manual", ...r, team_id: team })))
+      .select(),
+  );
 }
 
 export async function updateSale(id: string, input: Omit<SalesInput, "source">): Promise<SalesRecord> {
-  const s = await db();
-  return check(await s.from("sales_records").update(input).eq("id", id).select().single());
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
+  return check(await s.from("sales_records").update(input).eq("id", id).eq("team_id", team).select().single());
 }
 
 export async function deleteSale(id: string): Promise<void> {
-  const s = await db();
-  check(await s.from("sales_records").delete().eq("id", id));
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
+  check(await s.from("sales_records").delete().eq("id", id).eq("team_id", team));
 }

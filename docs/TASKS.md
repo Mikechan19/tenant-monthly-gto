@@ -25,12 +25,17 @@
 - Test all five states (loading/empty/partial/error/ready).
 - **Definition of Done:** Analyst imports a CSV, records appear in graph, toggle switches comparison window.
 
-## Sprint 4 — Lock It Down
-**Goal:** Auth + per-user RLS.
-- Supabase Auth (email/password).
-- Replace permissive RLS with `auth.uid() = user_id` policies.
-- Assign seed data to a demo user.
-- **Definition of Done:** New signup sees only their data; anonymous users redirected to login.
+## Sprint 4 — Lock It Down ✅ (team workspaces + login)
+**Goal:** Auth + per-team RLS. Scope changed from per-user to **team workspaces** (chosen by the user): each team has its own data; roles admin / analyst / viewer.
+- [x] Supabase Auth: email + password with email confirmation, magic link, `/auth/callback`, sign-out.
+- [x] Middleware redirects signed-out users to `/login?next=…` (public: `/login`, `/signup`, `/auth/*`, `/api/health`, Stripe webhook; other APIs → 401).
+- [x] `0002_teams.sql`: teams / team_members / team_invites, `team_id` on all data tables, permissive RLS replaced with member-read / admin+analyst-write policies, anon revoked.
+- [x] Seed/existing data moved into a member-less “Demo workspace”, claimable via SQL editor (README).
+- [x] Onboarding (create team / accept pending invites), team switcher, `/team` (members, roles, invite link, revoke, rename, leave).
+- [x] Data layer + server actions scoped to the active team; viewers see no write buttons and actions refuse them.
+- [x] Tests: `supabase/tests/rls_test.sql` (98 assertions, real Postgres), Vitest for role/redirect/validation logic, browser E2E `e2e/teams-flow.mjs` against local GoTrue + PostgREST.
+- Out of scope: sending invite emails (admins copy the link), audit log of membership changes, team deletion UI.
+- **Definition of Done:** New signup sees only their team's data; anonymous users redirected to login. ✔
 
 ## Gantt
 ```

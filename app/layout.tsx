@@ -3,6 +3,7 @@ import "./globals.css";
 import { AddSalesProvider } from "@/components/AddSales";
 import { Sidebar } from "@/components/Sidebar";
 import { ToastProvider } from "@/components/Toast";
+import { WorkspaceProvider } from "@/components/WorkspaceProvider";
 
 export const metadata: Metadata = {
   title: "Tenant GTO",
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-slate-50 text-slate-900 antialiased">
         <ToastProvider>
+          <WorkspaceProvider>
           <AddSalesProvider>
             <div className="md:flex">
               <Sidebar />
@@ -34,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </main>
             </div>
           </AddSalesProvider>
+          </WorkspaceProvider>
         </ToastProvider>
       </body>
     </html>

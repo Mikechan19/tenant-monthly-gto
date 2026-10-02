@@ -7,6 +7,7 @@ import type { Tenant } from "@/lib/data/types";
 import { Modal, modalFooterCls } from "./Modal";
 import { useToast } from "./Toast";
 import { Field, btnDanger, btnPrimary, btnSecondary, inputCls } from "./ui";
+import { useCanWrite } from "./Workspace";
 
 const CATEGORIES = ["F&B", "Fashion", "Electronics", "Grocery", "Kids", "Health & Beauty", "Services", "Entertainment", "Other"];
 
@@ -88,6 +89,7 @@ export function TenantButton({ tenant, label }: { tenant?: Tenant; label?: strin
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  if (!useCanWrite()) return null;
   return (
     <>
       <button type="button" className={tenant ? btnSecondary : btnPrimary} onClick={() => setOpen(true)}>
@@ -126,6 +128,8 @@ export function ConfirmDelete({
   const [busy, setBusy] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const canWrite = useCanWrite();
+  if (!canWrite) return null;
   if (!armed)
     return (
       <button type="button" className={btnDanger} onClick={() => setArmed(true)}>

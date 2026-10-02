@@ -6,7 +6,7 @@
 
 ## Permission Model
 - **v1 (demo-first):** RLS enabled but permissive — all tables readable/writable by anyone. Seed data renders without login.
-- **Lock-down sprint:** per-user RLS — `auth.uid() = user_id` on all tables. Users see only their own tenants/sales.
+- **Sprint 4 (implemented):** Supabase Auth sign-in required; per-**team** RLS (see DATA_MODEL.md). Roles: admin / analyst / viewer. The app talks to Postgres only through the anon key + the user's session cookie (`@supabase/ssr`), so RLS is the enforcement point; server actions additionally reject viewers, and the UI hides write controls. Invites are accepted only by a signed-in user whose **confirmed** email matches the invite. The service-role key is not used by the app.
 - Agent (later) inherits caller's permissions — can never exceed what the user can do.
 
 ## Approved-Tools Rule

@@ -8,6 +8,7 @@ import { Modal } from "./Modal";
 import { SalesForm } from "./SalesForm";
 import { useToast } from "./Toast";
 import { btnPrimary } from "./ui";
+import { useCanWrite } from "./Workspace";
 
 type TenantLite = Pick<Tenant, "id" | "name" | "unit">;
 type Registration = { tenants: TenantLite[]; defaultTenantId?: string };
@@ -95,9 +96,12 @@ export function AddSales({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const canWrite = useCanWrite();
   const ctx = useContext(Ctx);
   const register = ctx?.register;
   useEffect(() => register?.({ tenants, defaultTenantId }), [register, tenants, defaultTenantId]);
+
+  if (!canWrite) return null; // viewers are read-only
 
   return (
     <>

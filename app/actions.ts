@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
 import { DataError } from "@/lib/data/db";
+import { writeDenied } from "@/lib/data/team";
 import { createTenant, deleteTenant, updateTenant, type TenantInput } from "@/lib/data/tenants";
 import { deleteSale, insertSales, updateSale } from "@/lib/data/sales";
 import { deleteProjection, insertProjections, setProjectionStatus } from "@/lib/data/projections";
@@ -25,6 +27,7 @@ function refresh() {
 }
 
 function dbMessage(e: unknown): string {
+  unstable_rethrow(e); // never swallow redirect()/notFound()
   if (e instanceof DataError) {
     if (e.code === "23514" && /amount/.test(e.message)) return "Amount must be 0 or greater.";
     return e.message;
@@ -32,9 +35,17 @@ function dbMessage(e: unknown): string {
   return "Something went wrong saving to the database. Please try again.";
 }
 
+/** Every write action starts here: signed in, has an active team, and is admin/analyst (not viewer). */
+async function denied(): Promise<ActionState | null> {
+  const reason = await writeDenied();
+  return reason ? { ok: false, errors: { form: reason } } : null;
+}
+
 // ── Sales records ───────────────────────────────────────────────────────────
 
 export async function saveSale(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   const parsed = parseSalesFields({
     tenant_id: fd.get("tenant_id"),
     period_type: fd.get("period_type"),
@@ -63,6 +74,8 @@ export async function saveSale(_prev: ActionState, fd: FormData): Promise<Action
 }
 
 export async function removeSale(id: string): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   try {
     await deleteSale(id);
   } catch (e) {
@@ -92,6 +105,8 @@ function parseTenant(fd: FormData): { ok: true; value: TenantInput } | { ok: fal
 }
 
 export async function saveTenant(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   const parsed = parseTenant(fd);
   if (!parsed.ok) return { ok: false, errors: parsed.errors };
   const id = String(fd.get("id") ?? "");
@@ -106,6 +121,8 @@ export async function saveTenant(_prev: ActionState, fd: FormData): Promise<Acti
 }
 
 export async function removeTenant(id: string): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   try {
     await deleteTenant(id);
   } catch (e) {
@@ -122,6 +139,8 @@ export async function saveProjectionSnapshot(
   period: ProjectionPeriod,
   tenantId?: string,
 ): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   try {
     const today = todayKey();
     const from = myWallToUtc(addDays(today, -27));
@@ -140,7 +159,6 @@ export async function saveProjectionSnapshot(
         confidence: p!.confidence,
         source: "rule_based",
         review_status: "unreviewed",
-        user_id: null,
       }));
     if (!rows.length) return { ok: false, errors: { form: "Not enough data to project." } };
     await insertProjections(rows);
@@ -152,6 +170,8 @@ export async function saveProjectionSnapshot(
 }
 
 export async function reviewProjection(id: string, status: "approved" | "unreviewed"): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   try {
     await setProjectionStatus(id, status);
   } catch (e) {
@@ -162,6 +182,8 @@ export async function reviewProjection(id: string, status: "approved" | "unrevie
 }
 
 export async function removeProjection(id: string): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   try {
     await deleteProjection(id);
   } catch (e) {
@@ -186,6 +208,8 @@ export async function previewImport(csv: string): Promise<ImportPreview> {
 }
 
 export async function commitImport(csv: string): Promise<ActionState> {
+  const no = await denied();
+  if (no) return no;
   try {
     const tenants = await listTenants();
     const valid = parseCsv(csv, tenants).filter((r) => !r.error && r.record);

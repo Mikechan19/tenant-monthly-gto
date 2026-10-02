@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useOpenAddSales } from "./AddSales";
 import { Modal } from "./Modal";
+import { isBarePath } from "@/lib/logic/team";
+import { WorkspaceMenu } from "./WorkspaceMenu";
+import { useCanWrite } from "./Workspace";
 
 type NavItem = { href: string; label: string; short: string; icon: string };
 
@@ -36,7 +39,9 @@ export function Sidebar() {
   const path = usePathname();
   const [more, setMore] = useState(false);
   const openAddSales = useOpenAddSales();
+  const canWrite = useCanWrite();
   useEffect(() => setMore(false), [path]);
+  if (isBarePath(path)) return null; // login / signup / onboarding / invite pages have no app chrome
 
   const links = (
     <nav className="flex flex-col gap-1 p-3" aria-label="Main">
@@ -78,6 +83,7 @@ export function Sidebar() {
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-slate-200 bg-white md:block">
         {brand}
         {links}
+        <WorkspaceMenu />
       </aside>
 
       {/* Phone: slim sticky top bar (brand only; navigation lives in the bottom tab bar) */}
@@ -91,8 +97,8 @@ export function Sidebar() {
         </div>
       </header>
 
-      {/* Phone: floating Add Sales action, always above the tab bar */}
-      <button
+      {/* Phone: floating Add Sales action, always above the tab bar (hidden for viewers) */}
+      {canWrite && <button
         type="button"
         onClick={openAddSales}
         data-testid="fab-add-sales"
@@ -102,7 +108,7 @@ export function Sidebar() {
           <path d="M12 5v14M5 12h14" />
         </svg>
         Add Sales
-      </button>
+      </button>}
 
       {/* Phone: bottom tab bar */}
       <nav
@@ -162,6 +168,9 @@ export function Sidebar() {
             );
           })}
         </nav>
+        <div className="-mx-2 mt-2 border-t border-slate-100 pt-2">
+          <WorkspaceMenu />
+        </div>
       </Modal>
     </>
   );
