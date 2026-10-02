@@ -15,7 +15,7 @@ export function SaleRowActions({ record, tenants }: { record: SalesRecord; tenan
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const toast = useToast();
-  if (!useCanWrite()) return <span className="text-xs text-slate-400">View only</span>;
+  if (!useCanWrite()) return <span className="text-xs text-muted">View only</span>;
   return (
     <div className="flex flex-wrap justify-end gap-2 *:flex-1 sm:inline-flex sm:gap-1.5 sm:*:flex-none">
       <button type="button" className={`${btnSecondary} px-3 py-1.5`} onClick={() => setOpen(true)}>

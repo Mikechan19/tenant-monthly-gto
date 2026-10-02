@@ -24,7 +24,16 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-slate-50 text-slate-900 antialiased">
+      <head>
+        {/* Google Fonts via <link> (not next/font): builds must not depend on reaching Google. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        />
+      </head>
+      <body className="bg-canvas font-sans text-ink antialiased">
         <ToastProvider>
           <WorkspaceProvider>
           <AddSalesProvider>

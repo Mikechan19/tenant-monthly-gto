@@ -67,7 +67,7 @@ export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDo
         </Field>
       </div>
       {e.form && (
-        <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
+        <p role="alert" className="rounded-xl bg-neg-bg px-3 py-2 text-sm text-rose-800">
           {e.form}
         </p>
       )}
@@ -156,7 +156,7 @@ export function ConfirmDelete({
       >
         {busy ? "Deleting…" : confirmLabel}
       </button>
-      <button type="button" className="min-h-11 touch-manipulation rounded-lg px-3 text-sm text-slate-600 hover:bg-slate-100 sm:min-h-0 sm:px-2" onClick={() => setArmed(false)}>
+      <button type="button" className="min-h-11 touch-manipulation rounded-full px-3.5 text-sm font-semibold text-ink-2 hover:bg-row sm:min-h-10" onClick={() => setArmed(false)}>
         Cancel
       </button>
     </span>

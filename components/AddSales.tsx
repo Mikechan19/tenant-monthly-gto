@@ -57,11 +57,11 @@ export function AddSalesProvider({ children }: { children: ReactNode }) {
       {children}
       <Modal title="Add sales record" open={isOpen} onClose={close}>
         {state.error ? (
-          <p role="alert" className="text-sm text-rose-700">{state.error}</p>
+          <p role="alert" className="text-sm text-neg">{state.error}</p>
         ) : state.tenants === null ? (
-          <p className="py-6 text-center text-sm text-slate-500" aria-busy="true">Loading tenants…</p>
+          <p className="py-6 text-center text-sm text-muted" aria-busy="true">Loading tenants…</p>
         ) : state.tenants.length === 0 ? (
-          <p className="text-sm text-slate-600">Add a tenant first, then record its sales.</p>
+          <p className="text-sm text-ink-2">Add a tenant first, then record its sales.</p>
         ) : (
           <SalesForm
             tenants={state.tenants}
@@ -113,7 +113,7 @@ export function AddSales({
       </button>
       <Modal title="Add sales record" open={open} onClose={() => setOpen(false)}>
         {tenants.length === 0 ? (
-          <p className="text-sm text-slate-600">Add a tenant first, then record its sales.</p>
+          <p className="text-sm text-ink-2">Add a tenant first, then record its sales.</p>
         ) : (
           <SalesForm
             tenants={tenants}

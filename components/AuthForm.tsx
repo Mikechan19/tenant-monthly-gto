@@ -7,19 +7,22 @@ import { Field, btnPrimary, inputCls } from "./ui";
 
 export function AuthShell({ title, subtitle, children }: { title: string; subtitle?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="mx-auto mt-6 w-full max-w-md sm:mt-16">
-      <div className="mb-6 flex items-center gap-2">
-        <div className="grid h-9 w-9 place-items-center rounded-lg bg-teal-700 text-xs font-bold text-white">GTO</div>
+    <div className="relative mx-auto mt-[max(0.5rem,env(safe-area-inset-top))] w-full max-w-md sm:mt-14">
+      {/* soft teal glow behind the card */}
+      <div className="pointer-events-none absolute -top-10 right-0 h-48 w-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+      <div className="pointer-events-none absolute top-40 left-0 h-40 w-40 rounded-full bg-chart-emerald/10 blur-3xl" aria-hidden />
+      <div className="relative mb-6 flex items-center gap-3">
+        <div className="num grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-primary to-[#134e4a] text-xs font-bold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_4px_14px_rgb(15_118_110/0.25)]">GTO</div>
         <div className="leading-tight">
-          <div className="text-sm font-semibold text-slate-900">Tenant GTO</div>
-          <div className="text-xs text-slate-500">Leasing &amp; Finance</div>
+          <div className="text-base font-bold tracking-tight text-ink">Tenant GTO</div>
+          <div className="label-caps text-[10px] text-primary">GTO Leasing • Leasing &amp; Finance</div>
         </div>
       </div>
       {/* overflow-wrap:anywhere — long email addresses must wrap on 360px phones */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm [overflow-wrap:anywhere]">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
-        <div className="mt-5">{children}</div>
+      <div className="relative rounded-3xl border border-line bg-white/95 p-6 shadow-lift backdrop-blur-xl [overflow-wrap:anywhere] sm:p-8">
+        <h1 className="text-2xl leading-8 font-bold tracking-[-0.02em] text-ink">{title}</h1>
+        {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
+        <div className="mt-6">{children}</div>
       </div>
     </div>
   );
@@ -28,13 +31,13 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
 function Notice({ state }: { state: AuthState }) {
   if (state.errors?.form)
     return (
-      <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
+      <p role="alert" className="rounded-xl bg-neg-bg px-3 py-2 text-sm text-rose-800">
         {state.errors.form}
       </p>
     );
   if (state.ok && state.message)
     return (
-      <p role="status" className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+      <p role="status" className="rounded-xl bg-pos-bg px-3 py-2 text-sm text-emerald-800">
         {state.message}
       </p>
     );
@@ -77,23 +80,23 @@ export function AuthForm({ mode, next, initialError }: { mode: "login" | "signup
           {pending ? "Please wait…" : magic ? "Email me a sign-in link" : mode === "login" ? "Sign in" : "Create account"}
         </button>
       </form>
-      <div className="flex flex-col gap-2 text-center text-sm text-slate-600">
+      <div className="flex flex-col gap-2 text-center text-sm text-ink-2">
         {mode === "login" && (
-          <button type="button" className="font-medium text-teal-700 hover:underline" onClick={() => setMagic((m) => !m)}>
+          <button type="button" className="min-h-11 font-semibold text-primary underline-offset-4 hover:underline sm:min-h-0" onClick={() => setMagic((m) => !m)}>
             {magic ? "Use a password instead" : "Email me a magic link instead"}
           </button>
         )}
         {mode === "login" ? (
           <span>
             New here?{" "}
-            <Link href={`/signup${q}`} className="font-medium text-teal-700 hover:underline">
+            <Link href={`/signup${q}`} className="font-medium text-primary hover:underline">
               Create an account
             </Link>
           </span>
         ) : (
           <span>
             Already have an account?{" "}
-            <Link href={`/login${q}`} className="font-medium text-teal-700 hover:underline">
+            <Link href={`/login${q}`} className="font-medium text-primary hover:underline">
               Sign in
             </Link>
           </span>

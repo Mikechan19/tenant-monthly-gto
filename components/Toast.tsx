@@ -19,8 +19,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={i.id}
             role="status"
-            className={`rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-lg ${i.tone === "ok" ? "bg-slate-900" : "bg-rose-700"}`}
+            className={`flex items-center gap-2.5 rounded-2xl py-2.5 pr-4 pl-3 text-sm font-semibold text-white shadow-modal ring-1 ring-white/10 ${i.tone === "ok" ? "bg-ink" : "bg-neg"}`}
           >
+            <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${i.tone === "ok" ? "bg-chart-emerald/20 text-chart-emerald" : "bg-white/20 text-white"}`} aria-hidden>
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d={i.tone === "ok" ? "M5 12.5l4.5 4.5L19 7.5" : "M12 7v6M12 16.5v.01"} />
+              </svg>
+            </span>
             {i.msg}
           </div>
         ))}

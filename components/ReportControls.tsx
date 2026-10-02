@@ -21,8 +21,9 @@ export function ReportControls({
     return `/daily-report?${p}`;
   };
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
-      <div className="grid grid-cols-2 rounded-lg border border-slate-300 bg-white p-0.5 text-sm shadow-sm sm:inline-grid" role="group" aria-label="Comparison window">
+    <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:items-center">
+      {/* Segmented pill of filter chips: selected = teal text on a 12% teal tint with a dot indicator. */}
+      <div className="grid grid-cols-2 gap-1 rounded-full border border-line bg-white p-1 text-sm shadow-card sm:inline-grid" role="group" aria-label="Comparison window">
         {(
           [
             ["wow", "Week over week"],
@@ -33,8 +34,11 @@ export function ReportControls({
             key={m}
             href={href(m, tenantId)}
             aria-pressed={mode === m}
-            className={`flex min-h-10 touch-manipulation items-center justify-center rounded-md px-3 py-1.5 text-center font-medium whitespace-nowrap sm:min-h-0 ${mode === m ? "bg-teal-700 text-white" : "text-slate-600 hover:bg-slate-100"}`}
+            className={`flex min-h-10 touch-manipulation items-center justify-center gap-1.5 rounded-full px-3.5 py-1.5 text-center font-semibold whitespace-nowrap transition-colors sm:min-h-9 ${
+              mode === m ? "bg-primary-tint text-primary ring-1 ring-primary/20" : "text-muted hover:bg-canvas hover:text-ink"
+            }`}
           >
+            {mode === m && <span className="h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />}
             {label}
           </Link>
         ))}
@@ -44,7 +48,7 @@ export function ReportControls({
       </label>
       <select
         id="tenant-filter"
-        className={inputCls.replace("w-full", "w-full sm:w-72")}
+        className={`${inputCls.replace("w-full", "w-full sm:w-72").replace("rounded-xl", "rounded-full")} font-semibold`}
         value={tenantId ?? ""}
         onChange={(e) => router.push(href(mode, e.target.value || undefined))}
       >

@@ -68,7 +68,7 @@ function useFormSubmit(action: (prev: TeamState, fd: FormData) => Promise<TeamSt
 
 function FormError({ state }: { state: TeamState }) {
   return state.errors?.form ? (
-    <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
+    <p role="alert" className="rounded-xl bg-neg-bg px-3 py-2 text-sm text-rose-800">
       {state.errors.form}
     </p>
   ) : null;
@@ -97,7 +97,7 @@ export function AcceptInviteButton({ token, label = "Accept invite" }: { token: 
         {pending ? "Joining…" : label}
       </button>
       {state.ok === false && (
-        <p role="alert" className="text-sm text-rose-700">
+        <p role="alert" className="text-sm text-neg">
           {state.errors?.form ?? "Could not accept invite."}
         </p>
       )}
@@ -177,7 +177,7 @@ export function InviteForm() {
         <FormError state={state} />
       </div>
       {state.ok && state.token && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900 [overflow-wrap:anywhere]" role="status">
+        <div className="rounded-2xl border border-emerald-200 bg-pos-bg p-3.5 text-sm text-emerald-900 [overflow-wrap:anywhere]" role="status">
           <p className="mb-2">
             {state.message} Email isn’t sent automatically — copy this link and send it to them. They sign in (or sign up) with that email
             address and join the team.
@@ -185,10 +185,10 @@ export function InviteForm() {
           <CopyLink token={state.token} />
         </div>
       )}
-      <ul className="text-xs text-slate-500">
+      <ul className="text-xs text-muted">
         {ROLES.map((r) => (
           <li key={r}>
-            <b className="text-slate-700">{ROLE_LABEL[r]}</b> — {ROLE_HELP[r]}
+            <b className="text-ink-2">{ROLE_LABEL[r]}</b> — {ROLE_HELP[r]}
           </li>
         ))}
       </ul>
@@ -244,7 +244,7 @@ export function MemberControls({ userId, role, isSelf }: { userId: string; role:
         value={role}
         disabled={pending}
         onChange={(e) => run(() => changeRole(userId, e.target.value as Role), "Role updated.")}
-        className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm"
+        className="min-h-11 rounded-full border border-line-strong bg-white px-3 py-1.5 text-sm font-semibold text-ink focus:border-primary focus:ring-[3px] focus:ring-primary/15 focus:outline-none sm:min-h-9"
       >
         {ROLES.map((r) => (
           <option key={r} value={r}>
@@ -258,7 +258,7 @@ export function MemberControls({ userId, role, isSelf }: { userId: string; role:
             <button type="button" className={`${btnDanger} bg-rose-50`} disabled={pending} onClick={() => run(() => removeMember(userId), "Member removed.")}>
               Confirm remove
             </button>
-            <button type="button" className="rounded-lg px-2 text-sm text-slate-600 hover:bg-slate-100" onClick={() => setArmed(false)}>
+            <button type="button" className="min-h-11 rounded-full px-3.5 text-sm font-semibold text-ink-2 hover:bg-row sm:min-h-10" onClick={() => setArmed(false)}>
               Cancel
             </button>
           </>
@@ -297,7 +297,7 @@ export function LeaveTeamButton({ teamName }: { teamName: string }) {
       >
         {pending ? "Leaving…" : `Leave ${teamName}`}
       </button>
-      <button type="button" className="rounded-lg px-2 text-sm text-slate-600 hover:bg-slate-100" onClick={() => setArmed(false)}>
+      <button type="button" className="min-h-11 rounded-full px-3.5 text-sm font-semibold text-ink-2 hover:bg-row sm:min-h-10" onClick={() => setArmed(false)}>
         Cancel
       </button>
     </span>

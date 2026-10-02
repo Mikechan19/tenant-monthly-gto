@@ -19,11 +19,11 @@ export function WorkspaceMenu() {
   const active = ws.active;
 
   return (
-    <div className="mx-3 space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm" data-testid="workspace-menu">
+    <div className="mx-3 space-y-2.5 rounded-2xl border border-line bg-canvas p-3.5 text-sm shadow-card" data-testid="workspace-menu">
       {active && (
         <>
-          <label htmlFor="team-switch" className="block text-xs font-medium uppercase tracking-wide text-slate-500">
-            Workspace
+          <label htmlFor="team-switch" className="label-caps block text-[11px] text-muted">
+            Team workspace
           </label>
           {ws.teams.length > 1 ? (
             <select
@@ -49,7 +49,7 @@ export function WorkspaceMenu() {
                   setPending(false);
                 }
               }}
-              className="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm font-medium text-slate-900"
+              className="min-h-11 w-full rounded-xl border border-line-strong bg-white px-3 py-2 text-sm font-semibold text-ink shadow-[0_1px_2px_rgb(15_23_42/0.04)] focus:border-primary focus:ring-[3px] focus:ring-primary/15 focus:outline-none md:min-h-10"
             >
               {ws.teams.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -58,22 +58,22 @@ export function WorkspaceMenu() {
               ))}
             </select>
           ) : (
-            <div id="team-switch" className="truncate font-medium text-slate-900">{active.name}</div>
+            <div id="team-switch" className="truncate text-[15px] font-bold tracking-tight text-ink">{active.name}</div>
           )}
           <div className="flex items-center justify-between gap-2 text-xs">
-            <span className="rounded bg-white px-1.5 py-0.5 font-medium text-slate-600 ring-1 ring-slate-200" data-testid="active-role">
+            <span className="inline-flex min-h-6 items-center rounded-full bg-primary-tint px-2.5 text-[11px] font-semibold tracking-[0.02em] text-primary" data-testid="active-role">
               {ROLE_LABEL[active.role]}
             </span>
-            <Link href="/team" className="font-medium text-teal-700 hover:underline">
+            <Link href="/team" className="inline-flex min-h-8 items-center font-semibold text-primary underline-offset-4 hover:underline">
               Team settings
             </Link>
           </div>
         </>
       )}
-      <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-2 text-xs text-slate-500">
+      <div className="flex items-center justify-between gap-2 border-t border-line pt-2.5 text-xs text-muted">
         <span className="truncate" title={ws.email}>{ws.email}</span>
         <form action={signOut}>
-          <button type="submit" className="shrink-0 font-medium text-slate-700 hover:underline">
+          <button type="submit" className="min-h-8 shrink-0 font-semibold text-ink-2 underline-offset-4 hover:text-neg hover:underline">
             Sign out
           </button>
         </form>

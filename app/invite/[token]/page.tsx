@@ -26,14 +26,14 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
   if (!invite)
     return (
       <AuthShell title="Invite not found" subtitle="This link is invalid or the invite was revoked. Ask your team admin for a new one.">
-        <Link href={home} className="text-sm font-medium text-teal-700 hover:underline">Continue →</Link>
+        <Link href={home} className="text-sm font-medium text-primary hover:underline">Continue →</Link>
       </AuthShell>
     );
 
   if (invite.accepted)
     return (
       <AuthShell title="Invite already used" subtitle={`This invite to ${invite.team_name} has already been accepted.`}>
-        <Link href={home} className="text-sm font-medium text-teal-700 hover:underline">Continue →</Link>
+        <Link href={home} className="text-sm font-medium text-primary hover:underline">Continue →</Link>
       </AuthShell>
     );
 
@@ -45,12 +45,12 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
     >
       {mismatch ? (
         <div className="space-y-4 text-sm">
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-amber-900" role="alert">
+          <p className="rounded-xl bg-warn-bg px-3 py-2 text-amber-900" role="alert">
             This invite was sent to <b>{invite.email}</b>, but you’re signed in as <b>{ws.user.email}</b>. Sign out and sign in (or sign
             up) with the invited address.
           </p>
           <form action={signOut}>
-            <button type="submit" className="font-medium text-teal-700 hover:underline">Sign out</button>
+            <button type="submit" className="font-medium text-primary hover:underline">Sign out</button>
           </form>
         </div>
       ) : (

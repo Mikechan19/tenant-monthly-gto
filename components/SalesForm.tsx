@@ -85,7 +85,7 @@ export function SalesForm({
           <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
         </select>
-        <p className="mt-1 text-xs text-slate-500">{PERIOD_HELP[period]}</p>
+        <p className="mt-1.5 text-xs text-muted">{PERIOD_HELP[period]}</p>
       </Field>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -112,6 +112,10 @@ export function SalesForm({
       </div>
 
       <Field label="Amount (RM)" htmlFor="amount" error={errors.amount}>
+        <div className="relative">
+        <span className="num pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-base font-bold text-muted" aria-hidden>
+          RM
+        </span>
         <input
           id="amount"
           name="amount"
@@ -123,12 +127,13 @@ export function SalesForm({
           autoComplete="off"
           placeholder="e.g. 1500"
           defaultValue={record ? String(record.amount) : ""}
-          className={inputCls}
+          className={`${inputCls.replace("px-3.5", "pr-3.5 pl-12").replace("min-h-11", "min-h-12").replace("text-base", "text-lg").replace(" sm:text-sm", "")} num font-semibold`}
         />
+        </div>
       </Field>
 
       {errors.form && (
-        <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">
+        <p role="alert" className="rounded-xl bg-neg-bg px-3 py-2 text-sm text-rose-800">
           {errors.form}
         </p>
       )}

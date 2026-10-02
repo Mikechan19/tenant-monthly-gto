@@ -1,9 +1,93 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens — "Retail Pulse & GTO Engine" (Google Stitch, see DESIGN.md).
+ * Plus Jakarta Sans for UI text, Space Grotesk for every figure / caps label (tabular nums).
+ * Fonts are loaded with a <link> in app/layout.tsx; the stacks fall back to system fonts.
+ */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-numeric: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+
+  /* surfaces */
+  --color-canvas: #f8fafc; /* level 0 */
+  --color-card: #ffffff; /* level 1 */
+  --color-panel: #eff4ff; /* inset stat panels inside cards (surface-container-low) */
+  --color-panel-strong: #e5eeff;
+  --color-line: #e2e8f0; /* border-subtle */
+  --color-line-strong: #cbd5e1; /* border-strong (inputs) */
+  --color-row: #f1f5f9; /* table row dividers */
+
+  /* brand */
+  --color-primary: #0f766e;
+  --color-primary-hover: #115e59;
+  --color-primary-press: #134e4a;
+  --color-primary-tint: rgb(15 118 110 / 0.12);
+  --color-primary-soft: #f0fdfa;
+  --color-ink: #0f172a; /* secondary — titles & figures */
+  --color-ink-2: #334155;
+  --color-muted: #64748b; /* neutral — labels / metadata (4.76:1 on white) */
+  --color-tertiary: #10b981;
+
+  /* KPI + status (text shades darkened from DESIGN.md so small text stays ≥ 4.5:1 on its tint) */
+  --color-pos: #047857;
+  --color-pos-bg: #ecfdf5;
+  --color-neg: #be123c;
+  --color-neg-bg: #fff1f2;
+  --color-warn: #b45309;
+  --color-warn-bg: #fffbeb;
+
+  /* chart palette */
+  --color-chart-emerald: #10b981;
+  --color-chart-teal: #0d9488;
+  --color-chart-amber: #f59e0b;
+  --color-chart-rose: #f43f5e;
+  --color-chart-violet: #8b5cf6;
+
+  /* elevation */
+  --shadow-card: 0 4px 20px -2px rgb(15 23 42 / 0.05), 0 2px 6px -1px rgb(15 23 42 / 0.02);
+  --shadow-lift: 0 12px 32px -4px rgb(15 118 110 / 0.08), 0 4px 12px -2px rgb(15 23 42 / 0.04);
+  --shadow-modal: 0 24px 48px -8px rgb(15 23 42 / 0.16);
+  --shadow-cta: 0 4px 14px rgb(15 118 110 / 0.35);
+  --shadow-bar: 0 1px 8px rgb(0 0 0 / 0.04);
+  --shadow-tabbar: 0 -2px 12px rgb(15 23 42 / 0.06);
+}
+
+/* Figures: Space Grotesk with tabular, lining numerals (no jitter between rows / updates). */
+@utility num {
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* Uppercase categorical label (DESIGN.md label-caps). */
+@utility label-caps {
+  font-family: var(--font-numeric);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Hide scrollbars on horizontal chip / metric rails. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: var(--font-sans);
 }
 
 /* Recharts: no focus ring box around the chart after a tap. */
@@ -11,4 +95,17 @@ html {
 .recharts-surface:focus,
 .recharts-wrapper *:focus {
   outline: none;
+}
+
+/* Chart accents: radiant bloom on active points (DESIGN.md "Chart Accents"). */
+.chart-glow {
+  filter: drop-shadow(0 0 6px rgb(16 185 129 / 0.55));
+}
+
+/* Data grids: #F1F5F9 row dividers, fluid hover to #F8FAFC, figures right-aligned in Space Grotesk. */
+.data-grid tbody tr {
+  transition: background-color 150ms;
+}
+.data-grid tbody tr:hover {
+  background: #f8fafc;
 }
