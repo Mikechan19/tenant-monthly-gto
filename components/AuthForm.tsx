@@ -15,7 +15,8 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
           <div className="text-xs text-slate-500">Leasing &amp; Finance</div>
         </div>
       </div>
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      {/* overflow-wrap:anywhere — long email addresses must wrap on 360px phones */}
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm [overflow-wrap:anywhere]">
         <h1 className="text-xl font-semibold tracking-tight text-slate-900">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
         <div className="mt-5">{children}</div>

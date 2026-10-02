@@ -58,7 +58,7 @@ export default async function TeamPage() {
                 return (
                   <tr key={m.user_id} data-testid="member-row">
                     <td className="py-2.5 pr-3">
-                      <span className="font-medium text-slate-900">{m.email}</span> {self && <Badge tone="teal">you</Badge>}
+                      <span className="font-medium text-slate-900 [overflow-wrap:anywhere]">{m.email}</span> {self && <Badge tone="teal">you</Badge>}
                     </td>
                     <td className="py-2.5 pr-3 text-xs text-slate-500">{dateTime(m.created_at)}</td>
                     <td className="py-2.5 text-right">
@@ -88,7 +88,7 @@ export default async function TeamPage() {
               {invites.map((i) => (
                 <li key={i.id} className="space-y-2 py-3" data-testid="invite-row">
                   <div className="flex flex-wrap items-center gap-2 text-sm">
-                    <span className="font-medium text-slate-900">{i.email}</span>
+                    <span className="min-w-0 font-medium text-slate-900 [overflow-wrap:anywhere]">{i.email}</span>
                     <Badge>{ROLE_LABEL[i.role]}</Badge>
                     <span className="text-xs text-slate-500">created {dateTime(i.created_at)}</span>
                   </div>
@@ -107,7 +107,7 @@ export default async function TeamPage() {
           </Card>
         )}
         <Card title="Another workspace">
-          <p className="mb-3 text-sm text-slate-500">Create a separate team (its data is walled off from this one). Switch teams from the sidebar.</p>
+          <p className="mb-3 text-sm text-slate-500">Create a separate team (its data is walled off from this one). Switch teams from the workspace menu (sidebar, or “More” on phones).</p>
           <CreateTeamForm cta="Create team" />
         </Card>
         {!(admin && adminCount === 1) && (
