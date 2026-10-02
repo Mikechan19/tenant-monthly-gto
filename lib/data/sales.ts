@@ -9,6 +9,7 @@ export type SalesInput = {
   amount: number;
   recorded_at: string; // ISO UTC
   source?: string;
+  outlet?: string | null;
 };
 
 const PAGE = 1000;
@@ -77,4 +78,20 @@ export async function updateSale(id: string, input: Omit<SalesInput, "source">):
 export async function deleteSale(id: string): Promise<void> {
   const [s, team] = await Promise.all([db(), activeTeamId()]);
   check(await s.from("sales_records").delete().eq("id", id).eq("team_id", team));
+}
+
+/** Distinct outlet names already used for a tenant (for the Add Sales datalist). */
+export async function listOutlets(tenantId: string): Promise<string[]> {
+  const [s, team] = await Promise.all([db(), activeTeamId()]);
+  const rows = check(
+    await s
+      .from("sales_records")
+      .select("outlet")
+      .eq("team_id", team)
+      .eq("tenant_id", tenantId)
+      .not("outlet", "is", null)
+      .order("recorded_at", { ascending: false })
+      .limit(1000),
+  ) as { outlet: string }[];
+  return [...new Set(rows.map((r) => r.outlet))].sort((a, b) => a.localeCompare(b));
 }

@@ -2,13 +2,14 @@ import "server-only";
 import { check, db } from "./db";
 import { activeTeamId } from "./team";
 import type { Tenant } from "./types";
+import type { TenantTerms } from "@/lib/logic/terms";
 
 export type TenantInput = {
   name: string;
   category: string | null;
   unit: string | null;
   rent_rate_pct: number | null;
-};
+} & TenantTerms;
 
 // Every query is filtered by the active team; RLS independently limits rows to the user's teams.
 

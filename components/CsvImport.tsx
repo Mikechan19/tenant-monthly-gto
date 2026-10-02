@@ -128,6 +128,7 @@ export function CsvImport() {
                   <th className="px-4 py-2">Line</th>
                   <th className="px-4 py-2">Tenant</th>
                   <th className="px-4 py-2">Period</th>
+                  <th className="px-4 py-2">Outlet</th>
                   <th className="px-4 py-2">Recorded for</th>
                   <th className="px-4 py-2 text-right">Amount</th>
                   <th className="px-4 py-2">Status</th>
@@ -139,6 +140,7 @@ export function CsvImport() {
                     <td className="px-4 py-2 text-muted">{r.line}</td>
                     <td className="px-4 py-2">{r.tenantName ?? r.raw.tenant ?? r.raw.unit ?? "—"}</td>
                     <td className="px-4 py-2 capitalize">{r.record?.period_type ?? r.raw.period_type ?? "—"}</td>
+                    <td className="px-4 py-2 text-ink-2">{r.record?.outlet ?? r.raw.outlet ?? "—"}</td>
                     <td className="px-4 py-2 text-ink-2">{r.record ? dateTime(r.record.recorded_at) : r.raw.date ?? "—"}</td>
                     <td className="px-4 py-2 text-right num">{r.record ? rm(r.record.amount, { cents: true }) : r.raw.amount ?? "—"}</td>
                     <td className="px-4 py-2">{r.error ? <span className="text-neg">{r.error}</span> : <span className="text-pos">OK</span>}</td>

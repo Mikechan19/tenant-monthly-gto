@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { listTenantOutlets } from "@/app/tenant-options";
 import { saveSale, type ActionState } from "@/app/actions";
 import type { PeriodType, SalesRecord, Tenant } from "@/lib/data/types";
 import { Field, btnPrimary, btnSecondary, inputCls } from "./ui";
@@ -31,6 +32,17 @@ export function SalesForm({
   const [pending, setPending] = useState(false);
   const [period, setPeriod] = useState<PeriodType>(record?.period_type ?? "daily");
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
+  const [tenantId, setTenantId] = useState(record?.tenant_id ?? defaultTenantId ?? "");
+  const [outlets, setOutlets] = useState<string[]>([]);
+  // Suggest the tenant's existing outlets (e.g. "Outlet North", "Outlet South") in the Outlet field.
+  useEffect(() => {
+    let live = true;
+    setOutlets([]);
+    if (tenantId) listTenantOutlets(tenantId).then((o) => live && setOutlets(o)).catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [tenantId]);
 
   const errors = { ...state.errors, ...clientErrors } as Record<string, string | undefined>;
   const today = todayKey();
@@ -61,7 +73,7 @@ export function SalesForm({
     <form onSubmit={submit} className="space-y-4" noValidate>
       {record && <input type="hidden" name="id" value={record.id} />}
       <Field label="Tenant" htmlFor="tenant_id" error={errors.tenant_id}>
-        <select id="tenant_id" name="tenant_id" defaultValue={record?.tenant_id ?? defaultTenantId ?? ""} className={inputCls}>
+        <select id="tenant_id" name="tenant_id" value={tenantId} onChange={(e) => setTenantId(e.target.value)} className={inputCls}>
           <option value="">Select a tenant…</option>
           {tenants.map((t) => (
             <option key={t.id} value={t.id}>
@@ -130,6 +142,24 @@ export function SalesForm({
           className={`${inputCls.replace("px-3.5", "pr-3.5 pl-12").replace("min-h-11", "min-h-12").replace("text-base", "text-lg").replace(" sm:text-sm", "")} num font-semibold`}
         />
         </div>
+      </Field>
+
+      <Field label="Outlet (optional)" htmlFor="outlet" error={errors.outlet}>
+        <input
+          id="outlet"
+          name="outlet"
+          list="outlet-options"
+          defaultValue={record?.outlet ?? ""}
+          className={inputCls}
+          placeholder={outlets[0] ? `e.g. ${outlets[0]}` : "For tenants with several outlets"}
+          autoComplete="off"
+          maxLength={80}
+        />
+        <datalist id="outlet-options">
+          {outlets.map((o) => (
+            <option key={o} value={o} />
+          ))}
+        </datalist>
       </Field>
 
       {errors.form && (

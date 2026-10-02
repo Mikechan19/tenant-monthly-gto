@@ -37,6 +37,16 @@
 | user_id | uuid | nullable |
 | created_at | timestamptz | default now() |
 
+## Lease & GTO terms (`0003_gto_terms.sql`)
+| Table | Field | Notes |
+|-------|-------|-------|
+| tenants | property | text ≤ 120, e.g. the mall or building |
+| tenants | base_rent_monthly | numeric ≥ 0, RM per month |
+| tenants | gto_tiers | jsonb `[{"up_to": 400000, "rate": 0}, {"up_to": null, "rate": 0.03}]` — marginal bands on monthly gross sales; ascending `up_to`, last null, 0 ≤ rate ≤ 1 (CHECK via `valid_gto_tiers`). Null → `rent_rate_pct` as one flat band |
+| tenants | gto_sst_pct | numeric 0–100, default 0 (e.g. 8) |
+| tenants | lease_start, lease_end | date, end ≥ start |
+| sales_records | outlet | text 1–80, nullable — outlets of one tenant are summed for GTO |
+
 ## Relationships
 - tenants 1 → many sales_records
 - tenants 1 → many projections

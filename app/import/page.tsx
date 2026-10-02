@@ -29,6 +29,9 @@ export default function ImportPage() {
             <li>
               <code className="rounded-md bg-panel px-1.5 py-0.5 font-mono text-[0.8em] text-primary">hour</code> — 0–23, for hourly rows.
             </li>
+            <li>
+              <code className="rounded-md bg-panel px-1.5 py-0.5 font-mono text-[0.8em] text-primary">outlet</code> — optional, for tenants with several outlets (e.g. two shops of one tenant). Monthly GTO adds outlets together.
+            </li>
             <li>Preview first: rows with errors are listed and skipped; you confirm the batch before anything is saved. Imported rows are tagged <i>import</i>.</li>
           </ul>
         </Card>

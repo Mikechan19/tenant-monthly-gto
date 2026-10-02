@@ -16,12 +16,13 @@ const NAV: NavItem[] = [
   { href: "/", label: "Dashboard", short: "Home", icon: "M4 4h7v9H4zM13 4h7v5h-7zM13 11h7v9h-7zM4 15h7v5H4z" },
   { href: "/daily-report", label: "Daily Report", short: "Daily", icon: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3" },
   { href: "/tenants", label: "Tenants", short: "Tenants", icon: "M4 9l1.5-5h13L20 9M4 9v11h16V9M4 9c0 1.7 1.3 3 3 3s2.5-1.3 2.5-3c0 1.7 1.1 3 2.5 3s2.5-1.3 2.5-3c0 1.7 1.3 3 2.5 3 1.7 0 3-1.3 3-3M10 20v-4h4v4" },
+  { href: "/gto", label: "Monthly GTO", short: "GTO", icon: "M4 4h16v16H4zM4 9h16M9 9v11M14 13h3M14 16.5h3" },
   { href: "/projections", label: "Projections", short: "Forecast", icon: "M4 20h16M5 16l4-5 3 3 4-6 3 3M7 20v-2M11 20v-3M15 20v-4M19 20v-6" },
   { href: "/import", label: "CSV Import", short: "Import", icon: "M12 3v12m0 0l-4-4m4 4l4-4M4 17v3h16v-3" },
 ];
 
 /** Bottom tab bar order on phones (thumb reach); everything else lives under "More". */
-const TABS = ["/", "/daily-report", "/tenants", "/projections"];
+const TABS = ["/", "/daily-report", "/tenants", "/gto"]; // Forecast + Import live under "More"
 const MORE = NAV.filter((n) => !TABS.includes(n.href));
 
 function isActive(path: string, href: string) {

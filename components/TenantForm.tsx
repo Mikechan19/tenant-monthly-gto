@@ -7,6 +7,7 @@ import type { Tenant } from "@/lib/data/types";
 import { Modal, modalFooterCls } from "./Modal";
 import { useToast } from "./Toast";
 import { Field, btnDanger, btnPrimary, btnSecondary, inputCls } from "./ui";
+import { TierEditor } from "./TierEditor";
 import { useCanWrite } from "./Workspace";
 
 const CATEGORIES = ["F&B", "Fashion", "Electronics", "Grocery", "Kids", "Health & Beauty", "Services", "Entertainment", "Other"];
@@ -51,7 +52,7 @@ export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDo
         <Field label="Unit" htmlFor="t-unit">
           <input id="t-unit" name="unit" defaultValue={tenant?.unit ?? ""} className={inputCls} placeholder="A-12" />
         </Field>
-        <Field label="% rent rate" htmlFor="t-rate" error={e.rent_rate_pct}>
+        <Field label="Flat % rent (if no bands)" htmlFor="t-rate" error={e.rent_rate_pct}>
           <input
             id="t-rate"
             name="rent_rate_pct"
@@ -66,6 +67,34 @@ export function TenantForm({ tenant, onDone, onCancel }: { tenant?: Tenant; onDo
           />
         </Field>
       </div>
+      <details className="group rounded-2xl border border-line bg-canvas/60 p-3 open:bg-white sm:p-4" open={Boolean(tenant?.gto_tiers?.length || tenant?.base_rent_monthly || tenant?.property || e.property || e.base_rent_monthly || e.lease_start || e.lease_end || e.gto_sst_pct || e.gto_tiers)}>
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 font-semibold text-ink">
+          Lease &amp; GTO terms
+          <svg viewBox="0 0 24 24" className="h-5 w-5 text-muted transition group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </summary>
+        <div className="mt-3 space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Property" htmlFor="t-property" error={e.property}>
+              <input id="t-property" name="property" defaultValue={tenant?.property ?? ""} className={inputCls} placeholder="e.g. mall or building" />
+            </Field>
+            <Field label="Base rent / month (RM)" htmlFor="t-base" error={e.base_rent_monthly}>
+              <input id="t-base" name="base_rent_monthly" inputMode="decimal" defaultValue={tenant?.base_rent_monthly ?? ""} className={`${inputCls} num`} placeholder="12,500" />
+            </Field>
+            <Field label="Lease start" htmlFor="t-ls" error={e.lease_start}>
+              <input id="t-ls" name="lease_start" type="date" defaultValue={tenant?.lease_start ?? ""} className={inputCls} />
+            </Field>
+            <Field label="Lease end" htmlFor="t-le" error={e.lease_end}>
+              <input id="t-le" name="lease_end" type="date" defaultValue={tenant?.lease_end ?? ""} className={inputCls} />
+            </Field>
+            <Field label="SST on GTO (%)" htmlFor="t-sst" error={e.gto_sst_pct}>
+              <input id="t-sst" name="gto_sst_pct" inputMode="decimal" defaultValue={tenant?.gto_sst_pct ? String(tenant.gto_sst_pct) : ""} className={`${inputCls} num`} placeholder="0 (e.g. 6)" />
+            </Field>
+          </div>
+          <TierEditor initial={tenant?.gto_tiers} error={e.gto_tiers} />
+        </div>
+      </details>
       {e.form && (
         <p role="alert" className="rounded-xl bg-neg-bg px-3 py-2 text-sm text-rose-800">
           {e.form}

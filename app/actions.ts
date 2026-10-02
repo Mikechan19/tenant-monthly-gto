@@ -10,6 +10,7 @@ import { deleteProjection, insertProjections, setProjectionStatus } from "@/lib/
 import { listSalesBetween } from "@/lib/data/sales";
 import { listTenants } from "@/lib/data/tenants";
 import { parseSalesFields, periodTimestamp, type FieldErrors } from "@/lib/logic/records";
+import { parseOutlet, parseTerms, type TermErrors } from "@/lib/logic/terms";
 import { dailyTotalsByTenant } from "@/lib/logic/aggregate";
 import { projectFromDaily, type ProjectionPeriod } from "@/lib/logic/projection";
 import { addDays, myWallToUtc, todayKey } from "@/lib/logic/dates";
@@ -18,7 +19,7 @@ import { parseCsv, type ImportRow } from "@/lib/logic/csv";
 export type ActionState = {
   ok?: boolean;
   message?: string;
-  errors?: FieldErrors & { form?: string; name?: string; rent_rate_pct?: string };
+  errors?: FieldErrors & TermErrors & { form?: string; name?: string; rent_rate_pct?: string; outlet?: string };
   nonce?: number;
 };
 
@@ -53,13 +54,16 @@ export async function saveSale(_prev: ActionState, fd: FormData): Promise<Action
     date: fd.get("date"),
     hour: fd.get("hour"),
   });
-  if (!parsed.ok) return { ok: false, errors: parsed.errors };
+  const outlet = parseOutlet(fd.get("outlet"));
+  if (!parsed.ok || !outlet.ok)
+    return { ok: false, errors: { ...(parsed.ok ? {} : parsed.errors), ...(outlet.ok ? {} : { outlet: outlet.error }) } };
   const v = parsed.value;
   const row = {
     tenant_id: v.tenant_id,
     period_type: v.period_type,
     amount: v.amount,
     recorded_at: periodTimestamp(v.period_type, v.date, v.hour).toISOString(),
+    outlet: outlet.value,
   };
   const id = String(fd.get("id") ?? "");
   try {
@@ -100,8 +104,10 @@ function parseTenant(fd: FormData): { ok: true; value: TenantInput } | { ok: fal
     if (!Number.isFinite(rent_rate_pct) || rent_rate_pct < 0 || rent_rate_pct > 100)
       errors.rent_rate_pct = "Rate must be between 0 and 100.";
   }
-  if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { name, category, unit, rent_rate_pct } };
+  const terms = parseTerms((k) => fd.get(k), (k) => fd.getAll(k));
+  if (!terms.ok) Object.assign(errors, terms.errors);
+  if (Object.keys(errors).length || !terms.ok) return { ok: false, errors };
+  return { ok: true, value: { name, category, unit, rent_rate_pct, ...terms.value } };
 }
 
 export async function saveTenant(_prev: ActionState, fd: FormData): Promise<ActionState> {

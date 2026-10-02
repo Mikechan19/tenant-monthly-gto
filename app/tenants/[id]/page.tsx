@@ -5,6 +5,9 @@ import { HourlyBars, SalesChart, TrendBars } from "@/components/Charts";
 import { ConfidenceBadge, ProjectionCard } from "@/components/ProjectionCard";
 import { ProjectionRowActions, SaleRowActions, SaveProjectionButton } from "@/components/RowActions";
 import { DeleteTenant, TenantButton } from "@/components/TenantForm";
+import { TenantGtoSection } from "@/components/TenantGto";
+import { loadTenantGtoYear } from "@/lib/data/gto";
+import { tiersSummary } from "@/lib/logic/gto";
 import { Avatar, Badge, Card, EmptyState, ErrorPanel, PageHeader, Stat } from "@/components/ui";
 import { safe, windowStart } from "@/lib/data/load";
 import { listSavedProjections } from "@/lib/data/projections";
@@ -33,15 +36,16 @@ export default async function TenantDetail({
   const res = await safe(async () => {
     const tenant = await getTenant(id);
     if (!tenant) return null;
-    const [tenants, records, dayRecords, recent, count, saved] = await Promise.all([
+    const [tenants, records, dayRecords, recent, count, saved, gto] = await Promise.all([
       listTenants(),
       listSalesBetween(myWallToUtc(windowStart(today)), myWallToUtc(addDays(today, 1)), id),
       listSalesBetween(myWallToUtc(day), myWallToUtc(addDays(day, 1)), id),
       listRecentSales(id, 100),
       countSales(id),
       listSavedProjections(id),
+      loadTenantGtoYear(id, Number(today.slice(0, 4))),
     ]);
-    return { tenant, tenants, records, dayRecords, recent, count, saved };
+    return { tenant, tenants, records, dayRecords, recent, count, saved, gto };
   });
   if (!res.ok)
     return (
@@ -51,7 +55,7 @@ export default async function TenantDetail({
       </>
     );
   if (!res.data) notFound();
-  const { tenant, tenants, records, dayRecords, recent, count, saved } = res.data;
+  const { tenant, tenants, records, dayRecords, recent, count, saved, gto } = res.data;
   const lite = tenants.map((t) => ({ id: t.id, name: t.name, unit: t.unit }));
 
   const header = (
@@ -70,7 +74,15 @@ export default async function TenantDetail({
             </span>
             <span className="inline-flex flex-wrap items-center gap-2">
               {tenant.category && <Badge tone="teal">{tenant.category}</Badge>}
-              <span>{tenant.rent_rate_pct === null ? "No % rent" : <><span className="num font-semibold text-ink-2">{Number(tenant.rent_rate_pct)}%</span> of GTO rent</>}</span>
+              <span>
+                {tenant.gto_tiers?.length ? (
+                  tiersSummary(tenant.gto_tiers)
+                ) : tenant.rent_rate_pct === null ? (
+                  "No % rent"
+                ) : (
+                  <><span className="num font-semibold text-ink-2">{Number(tenant.rent_rate_pct)}%</span> of GTO rent</>
+                )}
+              </span>
             </span>
           </span>
         </span>
@@ -89,6 +101,7 @@ export default async function TenantDetail({
     return (
       <>
         {header}
+        {gto && <TenantGtoSection data={gto} />}
         <EmptyState
           title="No sales recorded yet"
           body={`Record ${tenant.name}’s first hourly, daily, weekly or monthly GTO to see its trend and projection.`}
@@ -112,6 +125,8 @@ export default async function TenantDetail({
   return (
     <>
       {header}
+
+      {gto && <TenantGtoSection data={gto} />}
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Stat label="Today" value={rm(todayTotal)} delta={pctChange(todayTotal, yTotal)} hint="vs yesterday" spark={trend.slice(-7)} />
@@ -199,7 +214,10 @@ export default async function TenantDetail({
                     {r.period_type}
                     <Badge tone={r.source === "import" ? "teal" : "slate"}>{r.source ?? "manual"}</Badge>
                   </div>
-                  <div className="mt-0.5 text-xs text-muted">{dateTime(r.recorded_at)}</div>
+                  <div className="mt-0.5 text-xs text-muted">
+                    {dateTime(r.recorded_at)}
+                    {r.outlet && <> · {r.outlet}</>}
+                  </div>
                 </div>
                 <div className="shrink-0 text-right text-base font-semibold num">{rm(Number(r.amount), { cents: true })}</div>
               </div>
@@ -224,7 +242,10 @@ export default async function TenantDetail({
             <tbody className="divide-y divide-row">
               {recent.map((r) => (
                 <tr key={r.id}>
-                  <td className="py-2 pr-3 capitalize">{r.period_type}</td>
+                  <td className="py-2 pr-3">
+                    <span className="capitalize">{r.period_type}</span>
+                    {r.outlet && <span className="block text-xs text-muted">{r.outlet}</span>}
+                  </td>
                   <td className="py-2 pr-3 text-ink-2">{dateTime(r.recorded_at)}</td>
                   <td className="py-2 pr-3 text-right font-medium num">{rm(Number(r.amount), { cents: true })}</td>
                   <td className="py-2 pr-3">

@@ -37,6 +37,13 @@
 - Out of scope: sending invite emails (admins copy the link), audit log of membership changes, team deletion UI.
 - **Definition of Done:** New signup sees only their team's data; anonymous users redirected to login. ✔
 
+## Sprint 5 — Monthly GTO (tiered turnover rent) ✅
+- [x] `0003_gto_terms.sql`: property, base rent, lease dates, SST %, tiered `gto_tiers` (validated), `outlet` on sales.
+- [x] `lib/logic/gto.ts`: monthly gross (monthly records win, else daily+hourly), marginal tiered GTO with Excel-style band breakdown, SST, exact money; unit-tested on a synthetic fixture, plus the real Excel figures when the local private fixture exists.
+- [x] `/gto` Monthly GTO screen (desktop grid, phone cards, breakdown sheet, portfolio row, year picker); GTO tab on phones (Forecast moved to More).
+- [x] Tenant form: lease & GTO terms + band editor; tenant page: terms card + monthly GTO table; Add Sales outlet (datalist); CSV `outlet` column.
+- [x] `scripts/gto_from_excel.py` → `private/<year>_gto_actuals.sql` (idempotent seed, gitignored) + CSV fallback. Real tenant data is never committed.
+
 ## Gantt
 ```
 S1 ████████████  DB + capture + daily graph

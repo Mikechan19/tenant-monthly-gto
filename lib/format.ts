@@ -31,3 +31,12 @@ export function dateTime(iso: string): string {
 export function hourLabel(h: number): string {
   return `${String(h).padStart(2, "0")}:00`;
 }
+
+/** Plain amount without "RM", e.g. 18,750.05; `cents: false` for whole-ringgit figures; null → "—". */
+export function money(n: number | null | undefined, cents = true): string {
+  return n === null || n === undefined || Number.isNaN(n)
+    ? "—"
+    : n.toLocaleString("en-MY", { minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: 2 });
+}
+/** money() with sen only when the figure has them. */
+export const moneyAuto = (n: number | null | undefined) => money(n, n !== null && n !== undefined && !Number.isInteger(n));
