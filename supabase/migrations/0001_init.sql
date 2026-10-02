@@ -14,10 +14,15 @@ create table if not exists tenants (
   created_at timestamptz not null default now()
 );
 alter table tenants enable row level security;
-drop policy if exists "tenants_v1_read" on tenants;
-create policy "tenants_v1_read" on tenants for select using (true);
-drop policy if exists "tenants_v1_write" on tenants;
-create policy "tenants_v1_write" on tenants for all using (true) with check (true);
+-- v1 permissive policies — skipped once 0002_teams.sql has locked the table down.
+do $$ begin
+  if to_regclass('public.team_members') is null then
+    drop policy if exists "tenants_v1_read" on tenants;
+    create policy "tenants_v1_read" on tenants for select using (true);
+    drop policy if exists "tenants_v1_write" on tenants;
+    create policy "tenants_v1_write" on tenants for all using (true) with check (true);
+  end if;
+end $$;
 
 -- ── sales_records ──────────────────────────────────────────────────────────
 create table if not exists sales_records (
@@ -33,10 +38,15 @@ create table if not exists sales_records (
 create index if not exists sales_records_tenant_recorded_idx on sales_records (tenant_id, recorded_at);
 create index if not exists sales_records_recorded_idx on sales_records (recorded_at);
 alter table sales_records enable row level security;
-drop policy if exists "sales_records_v1_read" on sales_records;
-create policy "sales_records_v1_read" on sales_records for select using (true);
-drop policy if exists "sales_records_v1_write" on sales_records;
-create policy "sales_records_v1_write" on sales_records for all using (true) with check (true);
+-- v1 permissive policies — skipped once 0002_teams.sql has locked the table down.
+do $$ begin
+  if to_regclass('public.team_members') is null then
+    drop policy if exists "sales_records_v1_read" on sales_records;
+    create policy "sales_records_v1_read" on sales_records for select using (true);
+    drop policy if exists "sales_records_v1_write" on sales_records;
+    create policy "sales_records_v1_write" on sales_records for all using (true) with check (true);
+  end if;
+end $$;
 
 -- ── projections ────────────────────────────────────────────────────────────
 create table if not exists projections (
@@ -52,12 +62,20 @@ create table if not exists projections (
   created_at timestamptz not null default now()
 );
 alter table projections enable row level security;
-drop policy if exists "projections_v1_read" on projections;
-create policy "projections_v1_read" on projections for select using (true);
-drop policy if exists "projections_v1_write" on projections;
-create policy "projections_v1_write" on projections for all using (true) with check (true);
+-- v1 permissive policies — skipped once 0002_teams.sql has locked the table down.
+do $$ begin
+  if to_regclass('public.team_members') is null then
+    drop policy if exists "projections_v1_read" on projections;
+    create policy "projections_v1_read" on projections for select using (true);
+    drop policy if exists "projections_v1_write" on projections;
+    create policy "projections_v1_write" on projections for all using (true) with check (true);
+  end if;
+end $$;
 
 -- ── seed (demo placeholders — fully editable/deletable in the app) ─────────
+-- Only on a pre-teams database; after 0002_teams.sql rows need a team_id, so re-running is a no-op.
+do $seed$ begin
+if to_regclass('public.team_members') is not null then return; end if;
 insert into tenants (name, category, unit, rent_rate_pct)
 select v.name, v.category, v.unit, v.rate
 from (values
@@ -105,3 +123,4 @@ insert into sales_records (tenant_id, period_type, amount, recorded_at, source)
 select t.id, 'daily', 2100, ((current_date - 1)::timestamp + interval '4 hours') at time zone 'UTC', 'manual'
 from tenants t
 where t.name = 'Green Grocer' and not exists (select 1 from sales_records s where s.tenant_id = t.id);
+end $seed$;

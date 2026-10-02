@@ -31,6 +31,15 @@ export function check<T>(res: { data: T | null; error: { message: string; code?:
         "no_schema",
       );
     }
+    if (res.error.code === "42703" && /team_id/.test(res.error.message)) {
+      throw new DataError(
+        "Team workspaces aren't set up in the database yet — apply supabase/migrations/0002_teams.sql in the Supabase SQL editor.",
+        "no_schema",
+      );
+    }
+    if (res.error.code === "42501") {
+      throw new DataError("You don't have permission to do that in this team.", res.error.code);
+    }
     throw new DataError(res.error.message, res.error.code);
   }
   return res.data as T;

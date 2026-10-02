@@ -7,6 +7,7 @@ import { Modal } from "./Modal";
 import { SalesForm } from "./SalesForm";
 import { useToast } from "./Toast";
 import { btnPrimary } from "./ui";
+import { useCanWrite } from "./Workspace";
 
 export function AddSales({
   tenants,
@@ -20,6 +21,7 @@ export function AddSales({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  if (!useCanWrite()) return null; // viewers are read-only
   return (
     <>
       <button type="button" className={btnPrimary} onClick={() => setOpen(true)}>

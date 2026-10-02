@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_rethrow } from "next/navigation";
 import { DataError } from "./db";
 import { listSalesBetween } from "./sales";
 import { listTenants } from "./tenants";
@@ -11,6 +12,7 @@ export async function safe<T>(fn: () => Promise<T>): Promise<Loaded<T>> {
   try {
     return { ok: true, data: await fn() };
   } catch (e) {
+    unstable_rethrow(e); // let redirect() to /login or /onboarding through
     return { ok: false, error: e instanceof DataError ? e.message : "Unexpected error loading data." };
   }
 }

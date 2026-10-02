@@ -41,9 +41,18 @@
 - tenants 1 → many sales_records
 - tenants 1 → many projections
 
+## teams / team_members / team_invites (Sprint 4 — `0002_teams.sql`)
+| Table | Fields |
+|-------|--------|
+| teams | id uuid PK, name text (1–80), created_by uuid → auth.users, created_at |
+| team_members | (team_id, user_id) PK, role `admin`/`analyst`/`viewer`, created_at |
+| team_invites | id, team_id, email (lower-case), role, token (unique, 48 hex), invited_by, accepted_at, accepted_by, created_at; one open invite per (team, email) |
+
+`tenants`, `sales_records`, `projections` gain `team_id uuid not null → teams(id) on delete cascade` (indexed); `user_id` now defaults to `auth.uid()` (informational — access is by team). `team_id` can't be changed after insert (trigger). Demo workspace id: `00000000-0000-4000-8000-00000000d0e0`.
+
 ## RLS Notes
-- All tables: RLS enabled, permissive v1 policies (read+write for all) — demo-first.
-- Lock-down sprint: replace with `auth.uid() = user_id` policies.
+- v1 (0001): permissive policies — removed by 0002.
+- Since 0002: `anon` has no table access. Members of a team can read its rows; admins + analysts can insert/update/delete; viewers are read-only. Sales/projections must reference a tenant of the same team. Only admins read/manage `team_members` writes and `team_invites`; anyone may delete their own membership (leave). A team always keeps ≥ 1 admin (trigger). Policies call `SECURITY DEFINER` helpers with `search_path = ''`.
 
 ## AI Field Convention
 `projected_amount` carries `source`, `confidence`, `review_status` when AI-generated. Rule-based projections: source='rule_based', confidence=null, review_status='unreviewed'.

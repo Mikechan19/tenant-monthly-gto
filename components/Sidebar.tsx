@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { isBarePath } from "@/lib/logic/team";
+import { WorkspaceMenu } from "./WorkspaceMenu";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10" },
@@ -20,6 +22,7 @@ export function Sidebar() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
+  if (isBarePath(path)) return null; // login / signup / onboarding / invite pages have no app chrome
 
   const links = (
     <nav className="flex flex-col gap-1 p-3" aria-label="Main">
@@ -59,6 +62,7 @@ export function Sidebar() {
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-slate-200 bg-white md:block">
         {brand}
         {links}
+        <WorkspaceMenu />
       </aside>
 
       <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 md:hidden">
@@ -75,7 +79,12 @@ export function Sidebar() {
           </svg>
         </button>
       </div>
-      {open && <div className="border-b border-slate-200 bg-white md:hidden">{links}</div>}
+      {open && (
+        <div className="border-b border-slate-200 bg-white pb-3 md:hidden">
+          {links}
+          <WorkspaceMenu />
+        </div>
+      )}
     </>
   );
 }
